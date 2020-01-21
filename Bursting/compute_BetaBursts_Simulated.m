@@ -8,7 +8,7 @@ for cond = 1:size(R.condname,2)
     
     % Resample to workable resolution
     cfg = [];
-    cfg.resamplefs = 2000;
+    cfg.resamplefs = 512;
     vc_clean = ft_resampledata(cfg,vc_clean);
     if isequal(R.condname{cond},'Empirical')
         BB.TEmp = vc_clean.time{1};

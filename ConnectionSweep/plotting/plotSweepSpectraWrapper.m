@@ -1,50 +1,49 @@
 function R = plotSweepSpectraWrapper(R)
 close all
+rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
+
 % load([R.rootn 'routine\' R.out.oldtag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_feat_F1.mat'],'feat_HD','feat_STR_GPe')
-cmap = brewermap(30,'Spectral');
 R.CONnames = {'M2 -> STN','STR -| GPe','GPe -| STN','STN -> GPe'};
 R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% STN->GPe'};
-cmap1 = brewermap(30,'Reds');
+cmap1 = brewermap(15,'Reds');
 % cmap1(22,:) = [0 0 0];
-cmap2 = brewermap(30,'Blues');
+cmap2 = brewermap(15,'Blues');
 % cmap2(28,:) = [0 0 0];
 ip = 0;
 for CON = [1 3]
     ip = ip + 1;
-    load([R.rootn 'routine\' R.out.oldtag '\BetaAlignedAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     figure(1)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 15 30],1:2:30,[1,1,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:1:15,[4,4,1])
     title(R.CONnames{CON})
-%     ylim([1e-16 1e-11])
+%     ylim([1e-16 1e-13])
     set(gca, 'YScale', 'log', 'XScale', 'log')
     
     figure(2)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 15 30],1:2:30,[4,1,2])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:1:15,[4,1,4])
     title(R.CONnames{CON})
-    %     ylim([1e-16 1e-11])
+%         ylim([1e-16 1e-11])
     
 end
-% set(gcf,'Position',[684         501        1024         366])
-
-ck_1 = logspace(-1,0.7,30);
-
-% cmap = brewermap(30,'Reds');
 
 ip = 0;
 for CON = [1 3]
         ip = ip + 1;
-    load([R.rootn 'routine\' R.out.oldtag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
+    
     bpow = []; fpow = [];
     for ck = 1:numel(feat)
-        [bpowr_br(ck) b] = max(feat{ck}(1,4,4,3,R.frqz>14 & R.frqz<21));
+        [bpowr_br(ck) b] = max(feat{ck}(1,4,4,3,R.frqz>14 & R.frqz<21)); % Low Beta Power
         fpow_br(ck) = R.frqz(b) + R.frqz(1);
-        [bpowr(ck) b] = max(feat{ck}(1,4,4,3,R.frqz>14 & R.frqz<30));
+        [bpowr(ck) b] = max(feat{ck}(1,4,4,3,R.frqz>14 & R.frqz<30)); % Full Beta Power
         fpow(ck) = R.frqz(b) + R.frqz(1);
-        [bcohr(ck) b] = max(feat{ck}(1,4,1,2,R.frqz>14 & R.frqz<30));
+        [bcohr(ck) b] = max(feat{ck}(1,4,1,4,R.frqz>14 & R.frqz<30)); % Full Beta M2/STN Coh
         fcoh(ck) = R.frqz(b) + R.frqz(1);
     end
+    ck_1 = ck_1(CON,:); % The scale for this connection modification
     
     % Scale bpow to 0
     [a zind] = min(abs(ck_1-1)); % base model
@@ -70,7 +69,7 @@ for CON = [1 3]
     subplot(2,2,ip+2)
     br = plot(log10(ck_1(1,:)),(bpow),'k-');
     hold on
-    Sr = scatter(log10(ck_1(1,:)),log10(bpow),50,cmap1,'filled');
+    Sr = scatter(log10(ck_1(1,:)),(bpow),50,cmap1,'filled');
     ylabel('log % of STN Fitted Power')
     grid on
     
@@ -91,7 +90,7 @@ for CON = [1 3]
     br = plot(log10(ck_1(1,:)),bcohr,'k-');
     hold on
     Sr = scatter(log10(ck_1(1,:)),bcohr,50,cmap1,'filled');
-    ylabel('M2 -> STN NPD')
+    ylabel('M2/STN Coherence')
     grid on
     
     yyaxis right
@@ -104,7 +103,7 @@ for CON = [1 3]
     title(R.CONnames{CON})
     xlim([-1 1]); ylim([12 25])
     yyaxis left
-    ylim([-50 50])
+    ylim([-75 75])
     
     
 end

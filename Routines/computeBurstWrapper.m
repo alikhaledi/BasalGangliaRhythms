@@ -1,26 +1,19 @@
 function [R,BB] = computeBurstWrapper(R)
 % load([R.rootn 'routine\' R.out.tag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_xsim.mat'],'xsim_HD','xsim_STR_GPe')
-R.BBA_path ='C:\Users\twest\Documents\Work\GitHub\BurstToolbox';
-addpath( genpath(R.BBA_path));
 % R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% STN->GPe'};
 R.condname = num2cell(1:20);
 cmap = brewermap(18,'Spectral');
 R.condcmap = cmap([1 4 8 16 4 18],:);
 hdext = {'','_F1','_bKF','_KrSel'};
-
+    rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 % R.condcmap(6,:) = [0 0 0];
-for CON = 1:4
-    for HD = 4
-        if HD == 1 || HD == 2  || HD == 3
-            HDM = HD;
-        elseif HD == 4
-            HDM = 2;
-        end
+for CON = [1 3]
+        HDM = 3; % This is the 
         BB = [];
         R.condname = {};
-        load([R.rootn 'routine\' R.out.tag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1' hdext{HDM} '.mat'],'ck_1')
-        load([R.rootn 'routine\' R.out.tag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_xsim' hdext{HDM} '.mat']); % The low density estimate
-        load([R.rootn 'routine\' R.out.tag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext{HDM} '.mat']); % The low density estimate
+        load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1' hdext{HDM} '.mat'],'ck_1')
+        load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_xsim' hdext{HDM} '.mat']); % The low density estimate
+        load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext{HDM} '.mat']); % The low density estimate
         
         if HD == 1 || HD == 2 || HD == 3
             MList = 1:numel(xsim);
@@ -53,6 +46,6 @@ for CON = 1:4
         BB = defineBetaEvents(R,BB,memflag);
         BB = getBurstStatsXConds(BB);
         BB.condlist = ck_1;
-        save([R.rootn '\routine\' R.out.tag '\BetaBurstAnalysis\Data\BBA_' R.out.tag '_Sims_CON_' num2str(CON) hdext{HD} '.mat'],'BB','-v7.3')
+        save([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) hdext{HD} '.mat'],'BB','-v7.3')
     end
 end

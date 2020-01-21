@@ -1,12 +1,13 @@
 function OnsetEvolveAnalysisMaster(R)
-addpath(R.BBA_path)
+ rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
+
 % If doing cond compar
 condsel = 1:19;
 % close all
 a= 0;
 for CON = [1 3]
     a = a+1;
-    load([R.rootn '\routine\' R.out.tag '\BetaBurstAnalysis\Data\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_bKF.mat'],'BB')
+    load([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_bKF.mat'],'BB')
     BB.struccmap = linspecer(4);
     TL.struccmap = BB.struccmap;
     

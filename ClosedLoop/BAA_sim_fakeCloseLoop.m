@@ -1,6 +1,6 @@
 function [R] = BAA_sim_fakeCloseLoop(R,simtime,fresh)
 % Comopute simulations by sweeping across data
-[R,m,permMod,xsimMod{1}] = getSimModelData_v2(R,10,simtime);
+[R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,10,simtime);
 P = permMod{1}.par_rep{1};
 
 
@@ -150,10 +150,12 @@ if fresh
         PLV(p) = mean(corrPhi);
         
     end
-    save([R.rootn '\routine\' R.out.tag '\BetaBurstAnalysis\Data\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','ck_1','phaseShift')
+    
+    mkdir([R.rootn '\data\CloseLoop'])
+    save([R.rootn '\data\CloseLoop\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','ck_1','phaseShift')
     
 else
-    load([R.rootn '\routine\' R.out.tag '\BetaBurstAnalysis\Data\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','ck_1','phaseShift')
+    load([R.rootn '\data\CloseLoop\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','ck_1','phaseShift')
 end
 
 %% Now Plot Results

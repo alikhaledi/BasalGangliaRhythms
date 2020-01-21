@@ -4,7 +4,7 @@ cmap = brewermap(24,'Reds');
 condcmap = cmap; %cmap([1 4 8 16 4 18],:);
 
 % Comopute simulations by sweeping across data
-[R,m,permMod,xsimMod{1}] = getSimModelData_v2(R,modID,simtime);
+[R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,modID,simtime);
 MP.p = permMod{1}.par_rep{1};
 MP.m = m;
 uc = innovate_timeseries(R,m);
@@ -63,11 +63,12 @@ for ctype =1:2
         end
         
     end
-        if ctype == 2
-            save([Rorg.rootn '\routine\' Rorg.out.tag '\BetaBurstAnalysis\Data\BetaM2STRInput_HD.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_maxpow')
-        elseif connection == 1
-            save([Rorg.rootn '\routine\' Rorg.out.tag '\BetaBurstAnalysis\Data\BetaM2STRInput_STNGPe.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_maxpow')
-        end
+    mkdir([R.rootn '\data\ModulatingInputs'])
+    if ctype == 2
+        save([R.rootn '\data\ModulatingInputs\BetaM2STRInput_HD.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_maxpow')
+    elseif ctype == 1
+        save([R.rootn '\data\ModulatingInputs\BetaM2STRInput_STNGPe.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_maxpow')
+    end
     
     
     % load('PRC_betainput_tmp.mat')

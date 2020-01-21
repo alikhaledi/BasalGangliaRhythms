@@ -1,10 +1,9 @@
 function TimeLockAnalysisMaster(R)
-addpath(R.BBA_path)
-
+ rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 close all
 for CON = [1 3]
     figure
-    load([R.rootn '\routine\' R.out.tag '\BetaBurstAnalysis\Data\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_KrSel.mat'],'BB')
+    load([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_KrSel.mat'],'BB')
      BB.struccmap = linspecer(4);
     TL.struccmap = BB.struccmap;
 
