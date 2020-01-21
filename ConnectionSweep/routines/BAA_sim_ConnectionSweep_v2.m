@@ -6,22 +6,23 @@ load([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
 pause(1)
 %% Connection Sets
-if HD == 0
+if HD == 1
     % discrete connection list
     for CON = [1 3]
         ck_1(CON,:) = [0.00001 0.125 0.25 0.5 0.75 1 1.25  1.5 3 5];
     end
     hdext = '';
-elseif HD == 1
+elseif HD == 2
     % Sliding scale
     % Used for: (1) Plot Spectra over sweeps
     for CON = [1 3]
         ck_1(CON,:) = logspace(-1,0.7,15);
     end
     hdext = '_F1';
-elseif HD == 2
+elseif HD == 3
     % This compute the ranges already used with the lower definition
     % simulation sweep in plotSweepSpectra.betaKrange(:,CON) = [b1 b2 b3];
+    % i.e. [10% 100% 190%
 
     refK = logspace(-1,0.7,15);
     for CON = [1 3]

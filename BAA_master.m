@@ -17,15 +17,13 @@ fresh = 1;
 BAA_sim_lesionExp(R,modID,simlength,fresh)
 
 %% Plot Model Sweep Spectra
-BAA_sim_ConnectionSweep_v2(R,modID,100,1)
+BAA_sim_ConnectionSweep_v2(R,modID,100,2)
 R = plotSweepSpectraWrapper(R); % You need the R produced here!
 plotSweepSpectraWrapper_M2_SI(R); % Plot Cortical Spectra
 
-% BAA_sim_ConnectionSweep_v2(R,modID,500,2) % Compute smaller list
-
 %% ISSUES IN THESE
 % Make Clear which sets of data are being used.
-simulateBurstData(R);
+simulateBurstData(R); % basically just gets'_bKF' data, scaled to beta 10,100,190%
 R = computeBurstWrapper(R);
 %% Plot TimeLocked Statistics
 BB.struccmap = linspecer(4);

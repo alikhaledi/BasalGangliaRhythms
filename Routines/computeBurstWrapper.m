@@ -8,16 +8,16 @@ hdext = {'','_F1','_bKF','_KrSel'};
     rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 % R.condcmap(6,:) = [0 0 0];
 for CON = [1 3]
-        HDM = 3; % This is the 
+        HDM = 3; % This is the scale decided from the 10% 100% and 190% intervals 
         BB = [];
         R.condname = {};
         load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1' hdext{HDM} '.mat'],'ck_1')
         load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_xsim' hdext{HDM} '.mat']); % The low density estimate
         load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext{HDM} '.mat']); % The low density estimate
         
-        if HD == 1 || HD == 2 || HD == 3
+        if HDM == 1 || HDM == 2 || HDM == 3
             MList = 1:numel(xsim);
-        elseif HD == 4
+        elseif HDM == 4
             MList = R.betaKrange(:,CON)';
         end
         
