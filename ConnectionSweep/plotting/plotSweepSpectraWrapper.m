@@ -5,9 +5,9 @@ rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 % load([R.rootn 'routine\' R.out.oldtag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_feat_F1.mat'],'feat_HD','feat_STR_GPe')
 R.CONnames = {'M2 -> STN','STR -| GPe','GPe -| STN','STN -> GPe'};
 R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% STN->GPe'};
-cmap1 = brewermap(15,'Reds');
+cmap1 = brewermap(30,'Reds');
 % cmap1(22,:) = [0 0 0];
-cmap2 = brewermap(15,'Blues');
+cmap2 = brewermap(30,'Blues');
 % cmap2(28,:) = [0 0 0];
 ip = 0;
 for CON = [1 3]
@@ -15,14 +15,14 @@ for CON = [1 3]
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     figure(1)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:1:15,[4,4,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 15 30],1:2:30,[4,4,1])
     title(R.CONnames{CON})
 %     ylim([1e-16 1e-13])
     set(gca, 'YScale', 'log', 'XScale', 'log')
     
     figure(2)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:1:15,[4,1,4])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 15 3],1:2:30,[4,1,4])
     title(R.CONnames{CON})
 %         ylim([1e-16 1e-11])
     
@@ -62,6 +62,9 @@ for CON = [1 3]
     [dum b1] = min(abs(bpowr_br-10));
     [dum b2] = min(abs(bpowr_br-100));
     [dum b3] = min(abs(bpowr_br-190));
+    if b2 == b3
+        b3 = b2+1;
+    end
     betaKrange(:,CON) = [b1 b2 b3];
     
     
@@ -108,5 +111,7 @@ for CON = [1 3]
     
 end
 R.betaKrange = betaKrange;
+warning('You need to find a solution to decent markers for betaKrange!!!')
+save([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_KRange.mat'],'betaKrange')
 % R.betaKrange(3,3) = 19;
 set(gcf,'Position',[600         374        760         604])

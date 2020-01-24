@@ -3,13 +3,13 @@ function TimeLockAnalysisMaster(R)
 close all
 for CON = [1 3]
     figure
-    load([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_KrSel.mat'],'BB')
+    load([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_bKF.mat'],'BB')
      BB.struccmap = linspecer(4);
     TL.struccmap = BB.struccmap;
 
     ip = 0;
-    
-    for cond = 1:3
+    condlist = [1 10 19];
+    for cond = condlist
         ip = ip + 1;
         TL.periodT = [-250 250];
 %             TL.periodT = [-50 300];
@@ -36,8 +36,8 @@ for CON = [1 3]
         title(R.condname{cond})
         
         % Get Onset Stats
-        condOnsetStat(:,cond,1) = nanmedian(TL.onsetT{cond}');
-        condOnsetStat(:,cond,2) = iqr(TL.onsetT{cond}');
+        condOnsetStat(:,ip,1) = nanmedian(TL.onsetT{cond}');
+        condOnsetStat(:,ip,2) = iqr(TL.onsetT{cond}');
 % %         figure(4)
 % %         subplot(1,3,ip)
 % %         plotTLTimeEvolutions(TL,cond,'BP')

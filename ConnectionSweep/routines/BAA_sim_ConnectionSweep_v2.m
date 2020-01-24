@@ -1,6 +1,9 @@
 function [R] = BAA_sim_ConnectionSweep_v2(Rorg,modID,simtime,HD)
 % Comopute simulations by sweeping across data
 % [R,m,permMod] = getSimModelData_v3(Rorg,modID,simtime);
+% mkdir([Rorg.rootn 'data\ModelFit\'])
+% save([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
+
 % OR Load it in:
 load([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
@@ -16,18 +19,21 @@ elseif HD == 2
     % Sliding scale
     % Used for: (1) Plot Spectra over sweeps
     for CON = [1 3]
-        ck_1(CON,:) = logspace(-1,0.7,15);
+        ck_1(CON,:) = logspace(-1,0.7,30);
     end
     hdext = '_F1';
 elseif HD == 3
     % This compute the ranges already used with the lower definition
     % simulation sweep in plotSweepSpectra.betaKrange(:,CON) = [b1 b2 b3];
-    % i.e. [10% 100% 190%
+    % i.e. [10% 100% 190%]
+    % This is currently used for burst statistics
+    rootan = [R.rootn 'data\rat_InDirect_ModelComp\ConnectionSweep'];
+    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_KRange.mat'],'betaKrange')
 
-    refK = logspace(-1,0.7,15);
+    refK = logspace(-1,0.7,30);
     for CON = [1 3]
-        x1 = logspace(log10(refK(Rorg.betaKrange(1,CON))),log10(refK(Rorg.betaKrange(2,CON))),10);
-        x2 = logspace(log10(refK(Rorg.betaKrange(2,CON))),log10(refK(Rorg.betaKrange(3,CON))),10); 
+        x1 = logspace(log10(refK(betaKrange(1,CON))),log10(refK(betaKrange(2,CON))),10);
+        x2 = logspace(log10(refK(betaKrange(2,CON))),log10(refK(betaKrange(3,CON))),10); 
 
         ck_1(CON,:) = [x1(1:end-1) 1 x2(2:end)];
     end

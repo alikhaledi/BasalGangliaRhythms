@@ -18,7 +18,7 @@ BAA_sim_lesionExp(R,modID,simlength,fresh)
 
 %% Plot Model Sweep Spectra
 BAA_sim_ConnectionSweep_v2(R,modID,100,2)
-R = plotSweepSpectraWrapper(R); % You need the R produced here!
+R = plotSweepSpectraWrapper(R); % This doesnt just plot but also works out the vectors for spread
 plotSweepSpectraWrapper_M2_SI(R); % Plot Cortical Spectra
 
 %% ISSUES IN THESE
@@ -29,15 +29,20 @@ R = computeBurstWrapper(R);
 BB.struccmap = linspecer(4);
 TimeLockAnalysisMaster(R); %,BB,[15 17 20]); % [15 17 20] for STN_GPE [1 6 8]
 OnsetEvolveAnalysisMaster(R)
-%% 
+
+%% Compute Closed Loop Experiment
+simlength = 50;
+fresh = 0;
+[R] = BAA_sim_fakeCloseLoop(R,modID,simlength,fresh);
 
 % This is a analysis of Beta inputs STN/M2
-[R,MP] = BAA_sim_betaInputs(R,10,32);
+simlength = 32;
+fresh = 1;
+[R,MP] = BAA_sim_betaInputs(R,modID,simlength,fresh);
 
 % This is pertubation analysis to get PRCs- at the moment its not very
 % clear what were looking for with it
 % [R] = BAA_sim_PRC(R,MP,500,0);
-[R] = BAA_sim_fakeCloseLoop(R,500,1);
 
 [R] = BAA_sim_BetaPropagation(R,160,1); %remember reference of Boba and Hamacher 2015 for ZTE
  

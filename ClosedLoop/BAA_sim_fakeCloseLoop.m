@@ -1,27 +1,28 @@
-function [R] = BAA_sim_fakeCloseLoop(R,simtime,fresh)
-% Comopute simulations by sweeping across data
-[R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,10,simtime);
+function [R] = BAA_sim_fakeCloseLoop(R,modID,simtime,fresh)
+% Load in model data
+% [R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,modID,simtime);
+
+% or load from preload
+load([R.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
+warning('Loading Preloaded model, cant change simtime or model choice!!!')
+pause(1)
+
 P = permMod{1}.par_rep{1};
-
-
-R.obs.csd.df = 0.25;
+% Simulation Coniditions
 R = setSimTime(R,simtime);
-cmap = brewermap(18,'Spectral');
-PRC.condcmap = cmap; %([1 4 8 16 4 18],:);
-PRC.condname = {'Fitted','1% STN->GPe','150% STN->GPe'}; %Fitted','1% M2->STN','150% M2->STN',
+R.obs.trans.norm = 0; % No normalization of spectra
+R.obs.csd.df = 0.25;
 
-% connection list
+% Plotting colors
+cmap = brewermap(18,'Spectral');
+
 % Give all timeseries the same input - makes comparable
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
 fsamp = 1/R.IntP.dt;
-conStren = [1]; %  0.001 1.3];
-ck_1 = [];
-% conStren =linspace(0.001,1.3,18);
 
 if fresh
-    
-    phaseShift = linspace(0,2.*pi,18);
+    phaseShift = linspace(0,2.*pi,18); % List of phases to be tested
     %     intpow = []; maxpow = [];
     for p = 1:numel(phaseShift) %[1 10] %
         % Setup pulses for PRC computation
@@ -38,7 +39,7 @@ if fresh
         
         % Now find bursts!!
         R.condname = {'1'};
-        [R,BB] = compute_BetaBursts_Simulated(R,xsim_ip{1});
+        [R,BB] = compute_BetaBursts_Simulated(R,xsim_ip{1},0);
         R.BB.thresh_prctile = 75;% o85; tl 80
         BB = compute_BurstThreshold(R,BB,1,0);
         R.BB.minBBlength = 0.5; %o1 tl 1.5; %  Minimum burst period- cycles
@@ -47,47 +48,40 @@ if fresh
         
         % Now decide the timing of the intervention!
         pulseWid = (0.3.*fsamp);
-        pulseAmp = 0.05;
         pulseDelay = (0.*fsamp);
-        pulseCycle = (1/50).*fsamp;
-        pulseDuty = (0.005*fsamp);
-        % If rhythmic Stim
-        %         pulseKern = zeros(pulseWid,1);
-        %         ps = 1;
-        %         while ps <= pulseWid
-        %         pulseKern(ps:ps+pulseDuty) = pulseAmp;
-        %         ps = ps + floor(pulseCycle+ 5.*randn);
-        %         end
-        pulseKern = ones(pulseWid,1);
+        
+        % Simulate the stimulation
         pU = zeros(size(R.IntP.tvec));
         pulseStart = [];
-        for seg = 1:numel(BB.segInds{1})-1
+        for seg = 1:numel(BB.segInds{1})
             pulseStart(seg) = BB.segInds{1}{seg}(1) + pulseDelay;
             pulseInds = pulseStart(seg):pulseStart(seg)+pulseWid-1;
-            pulse_Phi = BB.Phi{1}(4,pulseInds);
-            pulseKern = sin(pulse_Phi+(phaseShift(p))); %
-            pU(pulseInds) = pulseKern;
+            if pulseInds(end)<=size(BB.Phi{1},2) % Ensure always within sample range
+                pulse_Phi = BB.Phi{1}(4,pulseInds);
+                pulseKern = sin(pulse_Phi+(phaseShift(p))); %
+                pU(pulseInds) = pulseKern;
+            end
         end
         pU = (0.25.*std(uc{1}(:,1))).*pU; %.*pulseAmp;
         uc_ip{2} =  uc_ip{1};
         uc_ip{2}{1}(:,1) = uc_ip{2}{1}(:,1) + pU'; % Give it a cortical pulse
         %         uc_ip{2}{1}(:,1) = pU'; % Give it a cortical pulse
-        [~,~,feat_sim{2},~,xsim_ip{2}]  = computeSimData(R,m,uc_ip{2},Pbase,0);
+        [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{2},Pbase,0);
         
-        %         figure(100)
-        %         a(1) = subplot(2,1,1)
-        %         plot(R.IntP.tvec_obs,xsim_ip{1}{1}(1,2:end));
-        %         hold on
-        %         plot(R.IntP.tvec_obs,xsim_ip{2}{1}(1,2:end));
-        %
-        %         a(2) = subplot(2,1,2)
-        %
-        %         plot(R.IntP.tvec_obs,xsim_ip{1}{1}(4,2:end)+5e-6);
-        %         hold on
-        %         plot(R.IntP.tvec_obs,xsim_ip{2}{1}(4,2:end)+5e-6);
-        %         linkaxes(a,'x')
-        %         xlim([7 8])
-        %         R.plot.outFeatFx({feat_sim{1}},{feat_sim{2}},R.data.feat_xscale,R,1,[])
+%         figure(100)
+%         a(1) = subplot(2,1,1)
+%         plot(Rout.IntP.tvec_obs,xsim_ip{1}{1}(1,2:end));
+%         hold on
+%         plot(Rout.IntP.tvec_obs,xsim_ip{2}{1}(1,2:end));
+%         
+%         a(2) = subplot(2,1,2)
+%         
+%         plot(Rout.IntP.tvec_obs,xsim_ip{1}{1}(4,2:end)+5e-6);
+%         hold on
+%         plot(Rout.IntP.tvec_obs,xsim_ip{2}{1}(4,2:end)+5e-6);
+%         linkaxes(a,'x')
+%         xlim([7 8])
+%         R.plot.outFeatFx({feat_sim{1}},{feat_sim{2}},R.data.feat_xscale,R,1,[])
         
         % Recompute bursts!
         R.condname = {'1','2'};
@@ -152,10 +146,10 @@ if fresh
     end
     
     mkdir([R.rootn '\data\CloseLoop'])
-    save([R.rootn '\data\CloseLoop\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','ck_1','phaseShift')
+    save([R.rootn '\data\CloseLoop\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','phaseShift')
     
 else
-    load([R.rootn '\data\CloseLoop\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','ck_1','phaseShift')
+    load([R.rootn '\data\CloseLoop\ClosedLoop_save.mat'],'AEC','AEC_mean','PLV','intpow','powspec_save','maxpow','phaseShift')
 end
 
 %% Now Plot Results
@@ -199,11 +193,13 @@ title('Spectral Power under Phasic M2 Stimulation')
 
 subplot(1,3,3) % Burst stats
 X = AEC;
+X = 100.*(X-X(1))./X(1);
 p(1) = plot(phaseShift,X,'color',cmap(6,:),'LineWidth',2);
 hold on
 s(1) = scatter(phaseShift(phsel),X(phsel),50,cmap(phsel,:),'filled');
 
 X = PLV;
+X = 100.*(X-X(1))./X(1);
 p(2) = plot(phaseShift,X,'color',cmap(12,:),'LineWidth',2);
 hold on
 s(2) = scatter(phaseShift(phsel),X(phsel),50,cmap(phsel,:),'filled');
@@ -223,7 +219,7 @@ set(gcf,'Position',[711         604        1081         374])
 % % p(1) = plot(phaseShift,X,'color',cmap(6,:),'LineWidth',2);
 % % hold on
 % % s(1) = scatter(phaseShift(phsel),X(phsel),50,cmap(phsel,:),'filled');
-% % 
+% %
 % % % Burst Amplitude
 % % X = burAmp';
 % % X = 100.*(X(:,2)-X(:,1))./X(:,1);
@@ -231,7 +227,7 @@ set(gcf,'Position',[711         604        1081         374])
 % % hold on
 % % s(2) = scatter(phaseShift(phsel),X(phsel),65,cmap(phsel,:),'filled');
 % % s(2).Marker = 'diamond';
-% % 
+% %
 % % % Burst Phase Locking
 % % X = burPPC';
 % % X = 100.*(X(:,2)-X(:,1))./X(:,1);
@@ -239,4 +235,17 @@ set(gcf,'Position',[711         604        1081         374])
 % % hold on
 % % s(3) = scatter(phaseShift(phsel),X(phsel),65,cmap(phsel,:),'filled');
 % % s(3).Marker = 'square';
-% % 
+% %
+
+%% For repetitive pulses
+% pulseAmp = 0.05;
+% pulseCycle = (1/50).*fsamp;
+% pulseDuty = (0.005*fsamp);
+% % If rhythmic Stim
+% %         pulseKern = zeros(pulseWid,1);
+% %         ps = 1;
+% %         while ps <= pulseWid
+% %         pulseKern(ps:ps+pulseDuty) = pulseAmp;
+% %         ps = ps + floor(pulseCycle+ 5.*randn);
+% %         end
+% pulseKern = ones(pulseWid,1);
