@@ -38,7 +38,7 @@ for CON = [1 3]
         BB = compute_BurstThreshold(R,BB,condsel,0);
         R.BB.minBBlength = 1; %o1 tl 1.5; %  Minimum burst period- cycles
         BB.plot.durlogflag = 0;
-        if HD == 1 || HD == 3 || HD == 4
+        if HDM == 1 || HDM == 3 || HDM == 4
             memflag = 0;
         else
             memflag = 1; %Crop time series data (for memory)

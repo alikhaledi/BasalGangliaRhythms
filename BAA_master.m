@@ -47,6 +47,6 @@ OnsetEvolveAnalysisMaster(R)
 % 
 % % TimeLockedBetaPLVAnalysis(R,BB,xsimMod,AS)
 
-
-
+%% Bifurc
+BAA_sim_InputSweep_v2(R,modID,35,4)
 

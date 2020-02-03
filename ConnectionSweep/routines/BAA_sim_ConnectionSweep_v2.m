@@ -1,4 +1,5 @@
 function [R] = BAA_sim_ConnectionSweep_v2(Rorg,modID,simtime,HD)
+
 % Comopute simulations by sweeping across data
 % [R,m,permMod] = getSimModelData_v3(Rorg,modID,simtime);
 % OR Load it in:
@@ -32,6 +33,16 @@ elseif HD == 3
         ck_1(CON,:) = [x1(1:end-1) 1 x2(2:end)];
     end
     hdext = '_bKF';
+    
+    elseif HD == 4
+    % Sliding scale, deterministic
+    % Used for: (1) Plot Spectra over sweeps
+    for CON = [1 3]
+        ck_1(CON,:) = logspace(-1,0.7,15);
+    end
+    hdext = '_F1';
+    m.uset.p.scale = 0;
+    
 end
 
 %% Compute Noise
@@ -39,7 +50,7 @@ end
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
 XBase = permMod{1}.par_rep{1};
-R.IntP.getNoise = 1;
+R.IntP.getNoise = 1; % This turns off all the connections to get resting endogenous noise for each node
 R.obs.SimOrd = 10;
 R.obs.trans.norm = 0;
 R.obs.gainmeth = {};
@@ -51,7 +62,7 @@ m = m;
 for CON = [1 3]
     feat = {};
     xsim = {};
-    parfor i = 1:size(ck_1,2)
+    for i = 1:size(ck_1,2)
         % Now Modify
         Pbase = XBase;
         if CON == 1 % Hyperdirect
