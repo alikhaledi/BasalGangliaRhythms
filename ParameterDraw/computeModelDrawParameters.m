@@ -78,9 +78,10 @@ loopNames  = {'Direct','Indirect','Hyperdirect','Thalamocortical','Pallido-subth
 starheight = [30 1700];
 ylax = [-35 35; -2000 2000];
 xlax2 = [-50 50; -2500 2500];
+mainVar = bcohr;
 for  PL = 1:2
-    lowInd = bpowr<prctile(bpowr,25);
-    highInd = bpowr>=prctile(bpowr,75);
+    lowInd = mainVar<prctile(mainVar,25);
+    highInd = mainVar>=prctile(mainVar,75);
     
     if PL == 1
         Y = netAbsA;
@@ -148,15 +149,17 @@ for  PL = 1:2
     
     for i = 1:5
         subplot(1,5,i)
-        scatter((Z(i,:)),log10(bpowr(:)),'MarkerEdgeColor',[0.15 0.15 0.15]);
+        scatter((Z(i,:)),(mainVar(:)),'MarkerEdgeColor',[0.15 0.15 0.15]);
         hold on
-        scatter((Z(i,lowInd)),log10(bpowr(lowInd)),'MarkerEdgeColor',cmap(18,:),'MarkerFaceColor',cmap(18,:));
-        scatter((Z(i,highInd)),log10(bpowr(highInd)),'MarkerEdgeColor',cmap(end-18,:),'MarkerFaceColor',cmap(end-18,:))
+        scatter((Z(i,lowInd)),(mainVar(lowInd)),'MarkerEdgeColor',cmap(18,:),'MarkerFaceColor',cmap(18,:));
+        scatter((Z(i,highInd)),(mainVar(highInd)),'MarkerEdgeColor',cmap(end-18,:),'MarkerFaceColor',cmap(end-18,:))
         
         xlabel(ptits(PL)); ylabel('log Beta Power')
         title(loopNames{i})
         xlim(xlax2(PL,:)); 
-        ylim([-14.5 -12])
+%         ylim([-14.5 -12])
+        ylim([0.25 1])
+        
     end
         set(gcf,'Position',[26         714        1638         264]);
 
