@@ -46,6 +46,6 @@ for CON = [1 3]
         BB = defineBetaEvents(R,BB,memflag);
         BB = getBurstStatsXConds(BB);
         BB.condlist = ck_1;
-        save([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) hdext{HD} '.mat'],'BB','-v7.3')
+        save([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) hdext{HDM} '.mat'],'BB','-v7.3')
     end
 end

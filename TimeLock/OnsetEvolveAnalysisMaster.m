@@ -44,6 +44,7 @@ for CON = [1 3]
     %     condOnsetStat(isnan(condOnsetStat(:,:,:))) = [];
     subplot(1,2,a)
     betalist = linspace(10,190,19);
+    warning('The X axis is not a real scale!!')
     for i = 1:4
         [al aa(i)] = boundedline(betalist,condOnsetStat(i,:,1),[condOnsetStat(i,:,2); condOnsetStat(i,:,2)]')
         al.Color = BB.struccmap(i,:);
@@ -52,12 +53,12 @@ for CON = [1 3]
         aa(i).FaceColor = BB.struccmap(i,:);
         aa(i).FaceAlpha = 0.6;
         
-        [bl ba(i)] = boundedline(betalist,condPeakStat(i,:,1),[condPeakStat(i,:,2); condPeakStat(i,:,2)]')
-        bl.Color = BB.struccmap(i,:);
-        bl.LineWidth = 2;
-        bl.LineStyle = '-';
-        ba(i).FaceColor = BB.struccmap(i,:);
-        ba(i).FaceAlpha = 0.6;
+%         [bl ba(i)] = boundedline(betalist,condPeakStat(i,:,1),[condPeakStat(i,:,2); condPeakStat(i,:,2)]')
+%         bl.Color = BB.struccmap(i,:);
+%         bl.LineWidth = 2;
+%         bl.LineStyle = '-';
+%         ba(i).FaceColor = BB.struccmap(i,:);
+%         ba(i).FaceAlpha = 0.6;
         
         [cl ca(i)] = boundedline(betalist,condTermStat(i,:,1),[condTermStat(i,:,2); condTermStat(i,:,2)]')
         cl.Color = BB.struccmap(i,:);

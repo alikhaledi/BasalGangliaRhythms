@@ -1,75 +1,93 @@
-function [R,MP] = BAA_sim_betaInputs(R,modID,simtime)
+function [R,MP] = BAA_sim_betaInputs(R,modID,simtime,fresh)
 
 cmap = brewermap(24,'Reds');
 condcmap = cmap; %cmap([1 4 8 16 4 18],:);
 
-% Comopute simulations by sweeping across data
 [R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,modID,simtime);
 MP.p = permMod{1}.par_rep{1};
 MP.m = m;
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
+R.obs.trans.norm = 0; % No normalization of spectra
+
 %
 pki = linspace(-pi,pi,20);
 NcS = 18;
-for ctype =1:2
-    if ctype ==1
-        conStren = linspace(0.05,1.5,NcS); % [0.1 1 1.15]; STN-> GPe
-    elseif ctype == 2
-        conStren = linspace(0.05,2.5,NcS); % [0.1 1 1.15]; M2 -> STN
-    end
-    stn_powspec = [];
-    stn_intpow = [];
-    stn_maxpow = [];
-    
-    for cond = 1:NcS
-        Pbase = MP.p;
+if fresh == 1
+    for ctype =1:2
         if ctype ==1
-            Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*conStren(cond)); %
+            conStren = linspace(0.05,1.5,NcS); % [0.1 1 1.15]; STN-> GPe
         elseif ctype == 2
-            Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*conStren(cond)); %
+            conStren = linspace(0.05,2.5,NcS); % [0.1 1 1.15]; M2 -> STN
         end
+        stn_powspec = [];
+        stn_intpow = [];
+        stn_maxpow = [];
         
-        %     Pbase.A{1}(2,1) = -32; % Set M2->STR to zero
-        %     Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*conStren(cond)); %
-        %     Pbase.A{2}(3,2) = log(exp(Pbase.A{2}(3,2))*conStren(cond)); %
-        %     Pbase.A{1}(3,4) = log(exp(Pbase.A{1}(3,4))*conStren(cond)); %
-        
-        parfor i = 1:numel(pki)
-            uc_i = uc;
-            uc_i{1}(:,1) = (0.15.*std(uc{1}(:,1)).*sin(2.*20.*pi.*R.IntP.tvec)) + uc{1}(:,1)'; % M2
-            %         uc_i{1}(:,2) = (0.1.*std(uc{1}(:,2)).*sin(2.*20.*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,2)';
-            uc_i{1}(:,4) = (0.15.*std(uc{1}(:,2)).*sin(2.*20.*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,2)'; % STN
+        for cond = 1:NcS
+            Pbase = MP.p;
+            if ctype ==1
+                Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*conStren(cond)); %
+            elseif ctype == 2
+                Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*conStren(cond)); %
+            end
             
-            [r2mean,pnew,feat_sim,dum,xsim_gl] = computeSimData(R,m,uc_i,Pbase,0);
+            %     Pbase.A{1}(2,1) = -32; % Set M2->STR to zero
+            %     Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*conStren(cond)); %
+            %     Pbase.A{2}(3,2) = log(exp(Pbase.A{2}(3,2))*conStren(cond)); %
+            %     Pbase.A{1}(3,4) = log(exp(Pbase.A{1}(3,4))*conStren(cond)); %
             
+            % Find peak of oscillation
+            [~,~,feat_sim] = computeSimData(R,m,uc,Pbase,0);
             
-            X1 = xsim_gl{1}(1,:);
-            X2 = xsim_gl{1}(2,:);
-            X3 = xsim_gl{1}(3,:);
-            X = reshape([X1;X2;X3],3,1,[]);
-            Y = xsim_gl{1}(4,:);
+            [~,loc] = max(feat_sim(1,4,4,1,R.frqz>=14 & R.frqz<=30));
+            T = R.frqz(R.frqz>=14 & R.frqz<=30); % list of frequencies in band
+%             betapeak(cond) = 20; %T(loc); % This is the beta peak for the STN
+            betapeak(cond) = T(loc); % This is the beta peak for the STN
             
-            [corrAmp(i,cond,:),xcorrAmp(i,cond,:),corrPhi(i,cond,:),xcorrLAmp(i,cond,:),TE(i,cond,:,:),...
-                Pv(i,cond,:,:),anTE(i,cond,:),peakTau(i,cond,:,:),ZTE(i,cond,:,:)] = computePropMetrics(X,Y);
-            
-            ts_lp{i,cond} = xsim_gl;
-            feat_lp{i,cond} = feat_sim;
-            
-            stn_spec = squeeze(feat_sim(1,4,4,1,:));
-            stn_powspec(:,i,cond) = stn_spec;
-            stn_intpow(i,cond) = sum(stn_spec(R.frqz>14 & R.frqz<30));
-            stn_maxpow(i,cond) = max(stn_spec(R.frqz>14 & R.frqz<30));
+            parfor i = 1:numel(pki)
+                uc_i = uc;
+                uc_i{1}(:,1) = (0.15.*std(uc{1}(:,1)).*sin(2.*betapeak(cond).*pi.*R.IntP.tvec)) + uc{1}(:,1)'; % M2
+                %         uc_i{1}(:,2) = (0.1.*std(uc{1}(:,2)).*sin(2.*20.*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,2)';
+                uc_i{1}(:,4) = (0.15.*std(uc{1}(:,2)).*sin(2.*betapeak(cond).*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,2)'; % STN
+                
+                [r2mean,pnew,feat_sim,dum,xsim_gl] = computeSimData(R,m,uc_i,Pbase,0);
+                
+                
+                X1 = xsim_gl{1}(1,:);
+                X2 = xsim_gl{1}(2,:);
+                X3 = xsim_gl{1}(3,:);
+                X = reshape([X1;X2;X3],3,1,[]);
+                Y = xsim_gl{1}(4,:);
+                
+                [corrAmp(i,cond,:),xcorrAmp(i,cond,:),corrPhi(i,cond,:),xcorrLAmp(i,cond,:),TE(i,cond,:,:),...
+                    Pv(i,cond,:,:),anTE(i,cond,:),peakTau(i,cond,:,:),ZTE(i,cond,:,:)] = computePropMetrics(X,Y);
+                
+                ts_lp{i,cond} = xsim_gl;
+                feat_lp{i,cond} = feat_sim;
+                
+                stn_spec = squeeze(feat_sim(1,4,4,1,:));
+                stn_powspec(:,i,cond) = stn_spec;
+                stn_intpow(i,cond) = sum(stn_spec(R.frqz>14 & R.frqz<30));
+                stn_maxpow(i,cond) = max(stn_spec(R.frqz>14 & R.frqz<30));
+            end
+        end
+        mkdir([R.rootn '\data\ModulatingInputs'])
+        if ctype == 2
+            save([R.rootn '\data\ModulatingInputs\BetaM2STRInput_HD.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_powspec','stn_maxpow','conStren')
+        elseif ctype == 1
+            save([R.rootn '\data\ModulatingInputs\BetaM2STRInput_STNGPe.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_powspec','stn_maxpow','conStren')
         end
         
     end
-    mkdir([R.rootn '\data\ModulatingInputs'])
+end
+
+for ctype =1:2
     if ctype == 2
-        save([R.rootn '\data\ModulatingInputs\BetaM2STRInput_HD.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_maxpow')
+        load([R.rootn '\data\ModulatingInputs\BetaM2STRInput_HD.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_powspec','stn_maxpow','conStren')
     elseif ctype == 1
-        save([R.rootn '\data\ModulatingInputs\BetaM2STRInput_STNGPe.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_maxpow')
+        load([R.rootn '\data\ModulatingInputs\BetaM2STRInput_STNGPe.mat'],'corrAmp','xcorrAmp','corrPhi','xcorrLAmp','TE','Pv','anTE','peakTau','ZTE','stn_intpow','stn_powspec','stn_maxpow','conStren')
     end
-    
     
     % load('PRC_betainput_tmp.mat')
     stn_maxpow_dmin = (stn_maxpow - min(stn_maxpow)); %./std(stn_maxpow);
