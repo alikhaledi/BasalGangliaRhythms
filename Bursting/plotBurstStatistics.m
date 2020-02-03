@@ -1,6 +1,6 @@
+close all
 
-
-for CON = 3
+for CON = [1 3]
     R.condname{1} = '10%';
     R.condname{10} ='100%';
     R.condname{19} = '190%';
@@ -24,13 +24,13 @@ for CON = 3
     BB.range.AmpPrc = 0:5:100;
     
     % Setup Plot Limits
-    BB.plot.lims.burfreq = [0 30; 0 30];
+    BB.plot.lims.burfreq = [0 35; 0 35];
     BB.plot.lims.PLV = [-100 100]; %[0 0.35];
     BB.plot.lims.PLVun = [0 0.6];
     BB.plot.lims.wPLV = [-10 10];
-    BB.plot.lims.Amp =  [0 50];
+    BB.plot.lims.Amp =  [0 30];
     BB.plot.lims.wAmpPrc =  [-2 6];
-    BB.plot.lims.Dur = [0 1200]; %log10([15 1800]);
+    BB.plot.lims.Dur = [0 1600]; %log10([15 1800]);
     BB.plot.durlogflag = 0;
     % Compute  Burst Amplitude/Duration Statistics
     % for i = 1:5; F(i) = figure; end
@@ -40,5 +40,5 @@ for CON = 3
     
     
     figure
-    BB = AmpDurStatistics(R,BB,condsel,CON)
+    BB = AmpDurStatistics(R,BB,condsel,CON);
 end

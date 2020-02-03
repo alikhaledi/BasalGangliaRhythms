@@ -44,7 +44,8 @@ for CON = [1 3]
         fcoh(ck) = R.frqz(b) + R.frqz(1);
     end
     ck_1 = ck_1(CON,:); % The scale for this connection modification
-    
+%         [bpowr_br,fpow_br,bpowr,fpow,bcohr,fcoh] = computeBetaSpectralStats(R.frqz,feat)
+% 
     % Scale bpow to 0
     [a zind] = min(abs(ck_1-1)); % base model
     bpow = 100*(bpowr-bpowr(zind))/bpowr(zind);
