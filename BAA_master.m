@@ -45,78 +45,20 @@ fresh = 1;
 % [R] = BAA_sim_PRC(R,MP,500,0);
 
 [R] = BAA_sim_BetaPropagation(R,160,1); %remember reference of Boba and Hamacher 2015 for ZTE
- 
- 
+
+
 % BB.range.RP = linspace(-pi,pi,7);
 % BB = computeBetaBurstRPStats(R,BB);
-% 
+%
 % % TimeLockedBetaPLVAnalysis(R,BB,xsimMod,AS)
-[R,m,permMod,xsimMod] = getSimModelData_Draw(R,modID,32,0,150);
+[R,m,permMod,xsimMod] = getSimModelData_Draw(R,modID,32,0,500);
 % This Draw is not working!
 
 save('permModtmp_inflated','permMod')
 load('permModtmp_inflated','permMod')
-netA = [];
-netAbsA = []; bpowr = []; bpowr_br = []; bcohr = [];
-for i = 1:numel(permMod.wflag)
-    if permMod.wflag(i)
-        pinst = permMod.par_rep{i};
-        feat = permMod.feat_rep{i};
-        % X1) compute the "direct" loop - CTX->STR->GPi->Thal->CTX
-        X1(1) = pinst.A{1}(2,1); % M2 -> STR
-        X1(2) = -pinst.A{2}(5,2); % STR -> GPi
-        X1(3) = -pinst.A{2}(6,5); % GPi -> Thal
-        X1(4) = pinst.A{1}(1,6); % Thal -> CTX
-        
-        % X2) compute the "indirect" loop - CTX->STR->GPe->STN->GPi->Thal->CTX
-        X2(1) = pinst.A{1}(2,1); % M2 -> STR
-        X2(2) = -pinst.A{2}(3,2); % STR -> GPe
-        X2(3) = -pinst.A{2}(4,3); % GPe -> STN
-        X2(4) = pinst.A{1}(5,4); % STN -> GPi
-        X2(5) = -pinst.A{2}(6,5); % GPi -> Thal
-        X2(6) = pinst.A{1}(1,6); % Thal -> CTX
-        
-        % X3) compute the "hyperdirect" loop - CTX->STN->GPi->Thal->CTX
-        X3(1) = pinst.A{1}(4,1); % M2 -> STN
-        X3(2) = pinst.A{1}(5,4); % STN -> GPi
-        X3(3) = -pinst.A{2}(6,5); % GPi -> Thal
-        X3(4) = pinst.A{1}(1,6); % Thal -> CTX
-        
-        % X4) compute the "thalamocortical" loop - CTX->Thal->CTX
-        X4(1) = pinst.A{1}(6,1); % M2 -> STN
-        X4(2) = pinst.A{1}(1,6); % STN -> GPi
-        
-        % X5) compute the "pallido-subthalamic" loop - GPe->STN->GPe
-        X5(1) = -pinst.A{2}(4,3); % GPe -> STN
-        X5(2) = pinst.A{1}(3,4); % STN -> GPe
-        
-        % Compute Summaries
-        netA(:,i) = [sum(X1) sum(X2) sum(X3) sum(X4) sum(X5)]';
-        netAbsA(:,i) = [sum(abs(X1)) sum(abs(X2)) sum(abs(X3)) sum(abs(X4)) sum(abs(X5))]';
-        
-        
-        [bpowr_br(i),fpow_br(i),bpowr(i),fpow(i),bcohr(i),fcoh(i)] = computeBetaSpectralStats(R.frqz,{feat})
-    else
-        netA(:,i) = nan(1,5);
-        netAbsA(:,i) = nan(1,5);
-        bpowr(i) = nan;
-        bpowr_br(i) = nan;
-        bcohr(i) = nan;
-    end
-end
 
-for i = 1:5
-    figure(i)
-    scatterhist((netAbsA(i,:)),bcohr)
-end
+computeModelDrawParameters(R,permMod)
 
-% COherence seems to give good correlations
-
-for i = 1:100
-plotABCSpectraOnly(R.data.feat_xscale,R.data.feat_emp,permMod.feat_rep{i})
-end
-
-for p = 1:4; subplot(1,6,p); ylim([0 1]); end
 
 %% Bifurc
 BAA_sim_InputSweep_v2(R,modID,35,4)
