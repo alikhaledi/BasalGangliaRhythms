@@ -4,8 +4,8 @@ surflag = 0;
 
 if surflag == 0
     concatA = [BB.AEnv{condsel}];
-    BB.epsAmpfull = prctile(concatA(:,:),R.BB.thresh_prctile ,2);
-    BB.epsAmp = prctile(concatA(R.BB.pairInd(2),:),R.BB.thresh_prctile ,2);
+    BB.epsAmpfull = prctile(concatA(:,:),R.BB.thresh_prctile ,2); % This is for all channels
+    BB.epsAmp = prctile(concatA(R.BB.pairInd(2),:),R.BB.thresh_prctile ,2); % Or only the target channel
     concatA = [BB.PLV{condsel}];
     BB.epsPLV = prctile(concatA(1,:),R.BB.thresh_prctile ,2);
 else

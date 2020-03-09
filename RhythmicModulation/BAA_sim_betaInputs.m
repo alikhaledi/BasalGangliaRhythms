@@ -40,16 +40,21 @@ if fresh == 1
             % Find peak of oscillation
             [~,~,feat_sim] = computeSimData(R,m,uc,Pbase,0);
             
-            [~,loc] = max(feat_sim(1,4,4,1,R.frqz>=14 & R.frqz<=30));
+            [~,loc] = max(feat_sim(1,1,1,1,R.frqz>=14 & R.frqz<=30));
             T = R.frqz(R.frqz>=14 & R.frqz<=30); % list of frequencies in band
-%             betapeak(cond) = 20; %T(loc); % This is the beta peak for the STN
-            betapeak(cond) = T(loc); % This is the beta peak for the STN
+            betapeak(cond) = T(loc); %20; % % This is the beta peak for the STN
+            
+%             [~,loc] = max(feat_sim(1,4,4,1,R.frqz>=14 & R.frqz<=30));
+%             T = R.frqz(R.frqz>=14 & R.frqz<=30); % list of frequencies in band
+%             betapeak(2,cond) = T(loc); %20% This is the beta peak for the STN
+            
+%             betapeak(cond) = T(loc); % This is the beta peak for the STN
             
             parfor i = 1:numel(pki)
                 uc_i = uc;
                 uc_i{1}(:,1) = (0.15.*std(uc{1}(:,1)).*sin(2.*betapeak(cond).*pi.*R.IntP.tvec)) + uc{1}(:,1)'; % M2
                 %         uc_i{1}(:,2) = (0.1.*std(uc{1}(:,2)).*sin(2.*20.*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,2)';
-                uc_i{1}(:,4) = (0.15.*std(uc{1}(:,2)).*sin(2.*betapeak(cond).*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,2)'; % STN
+                uc_i{1}(:,4) = (0.15.*std(uc{1}(:,4)).*sin(2.*betapeak(cond).*pi.*R.IntP.tvec + pki(i))) + uc{1}(:,4)'; % STN
                 
                 [r2mean,pnew,feat_sim,dum,xsim_gl] = computeSimData(R,m,uc_i,Pbase,0);
                 

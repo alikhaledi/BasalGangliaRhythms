@@ -102,7 +102,7 @@ if fresh
             
             burdur(stm,p) = median(BB.segDur{stm});
             burAmp(stm,p) = median(BB.segAmp{stm});
-            burPPC(stm,p) = median(BB.segPPC{stm});
+            burPPC(stm,p) = median(BB.sPPC{stm});
         end
         
         % Compute Amplitude Corrs etc

@@ -17,12 +17,12 @@ plotBurstDurationHistogram(R,BB,condsel);
 % subplot(2,3,3);
 % plotBurstAmpDurScatter(R,BB,condsel)
 
-featlist = {'ssAmp','ssDur','ssPPC','ssPow'};
+featlist = {'ssAmp','ssDur','ssPPC','ssPLV'};
 featname = {'Burst Amplitude','Burst Duration','Burst CTX/STN Phase Sync.','Burst Power (Amp x Dur)'};
-yl_list = {[0 20],[0 250],[0 0.5],[0 2500]}
+yl_list = {[70 100],[0 100],[0.2 0.4],[0 1]}
 for feat = 1:4
     subplot(3,2,feat+2)
-    boundedline(linspace(10,190,19),BB.condstat.(featlist{feat})(1,:),BB.condstat.(featlist{feat})(4,:))
+    boundedline(linspace(10,190,19),BB.condstat.(featlist{feat})(1,:),BB.condstat.(featlist{feat})(3,:))
     
     xlabel('Connection Strength')
     ylabel(featname{feat})

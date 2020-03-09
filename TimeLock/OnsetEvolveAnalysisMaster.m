@@ -1,11 +1,11 @@
 function OnsetEvolveAnalysisMaster(R)
- rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
+rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 
 % If doing cond compar
 condsel = 1:19;
 % close all
 a= 0;
-for CON = [1 3]
+for CON = [3 1]
     a = a+1;
     load([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_bKF.mat'],'BB')
     BB.struccmap = linspecer(4);
@@ -20,7 +20,7 @@ for CON = [1 3]
         TL = defineBurstTimeLockEpoch(BB,TL,cond);
         
         
-        if numel(BB.segInds{cond})>1
+        if size(TL.onsetT{cond},2)>3
             % Get Onset Stats
             condOnsetStat(:,cond,1) = nanmedian(TL.onsetT{cond}');
             condOnsetStat(:,cond,2) = (prctile(TL.onsetT{cond}',66)-prctile(TL.onsetT{cond}',16))./sqrt(size(TL.onsetT{cond},2));
@@ -31,36 +31,72 @@ for CON = [1 3]
             condTermStat(:,cond,1) = nanmedian(TL.onsetOffT{cond}');
             condTermStat(:,cond,2) = (prctile(TL.onsetOffT{cond}',66)-prctile(TL.onsetOffT{cond}',16))./sqrt(size(TL.onsetOffT{cond},2));
             
-            % %         cmblist = nchoosek(1:size(BB.epsAmpfull,1), 2);
-            % %         tally = zeros(1,4)
-            % %         for p = 1:size(cmblist,1)
-            % %             [testR(p),dum,stat] = ranksum(G(:,cmblist(p,1)),G(:,cmblist(p,2)))
-            % %             testZ(p) = stat.zval;
-            % %         end
+            condBurstSuccess(:,cond) = 100.*sum(~isnan(TL.onsetT{cond}),2)./size(TL.onsetT{cond},2);
             
+        else
+            condOnsetStat(:,cond,1) = nan;
+            condOnsetStat(:,cond,2) = nan;
+            
+            condPeakStat(:,cond,1) = nan;
+            condPeakStat(:,cond,2) = nan;
+            
+            condTermStat(:,cond,1) = nan;
+            condTermStat(:,cond,2) = nan;
+            
+            condBurstSuccess(:,cond) = nan(4,1);
         end
-        
     end
+    
+    for cond = condsel
+        for i = 1:3
+            if size(TL.onsetT{cond},2)>3
+                [h pOnset(i,cond)] = ttest(TL.onsetT{cond}(4,:),TL.onsetT{cond}(i,:));
+                [h pOffset(i,cond)] = ttest(TL.onsetOffT{cond}(4,:),TL.onsetOffT{cond}(i,:));
+                
+                
+                % Segment Duration
+                [Rk pdum] = corrcoef(TL.segDur{cond}(4,:),TL.segDur{cond}(i,:),'rows','complete');
+                 pCorrDurr(i,cond) = pdum(2);
+                 
+                [Rk pdum] = corrcoef(TL.onsetT{cond}(4,:),TL.onsetT{cond}(i,:),'rows','complete');
+                pCorrOnset(i,cond) = pdum(2);
+                [Rk pdum] = corrcoef(TL.onsetOffT{cond}(4,:),TL.onsetOffT{cond}(i,:),'rows','complete');
+                pCorrOffset(i,cond) = pdum(2);
+            else
+                pOnset(i,cond) = nan;
+                pOffset(i,cond) = nan;
+                pCorrOnset(i,cond) = nan;
+                pCorrOffset(i,cond) = nan;
+            end
+        end
+    end
+    
+    pOnsetStar = benHochFWER(pOnset,0.01);
+    pOffsetStar = benHochFWER(pOffset,0.01);
+    
+    pCorrOnsetStar =  benHochFWER(pCorrOnset,0.05);
+    pCorrOffsetStar =  benHochFWER(pCorrOffset,0.05);
+    
     %     condOnsetStat(isnan(condOnsetStat(:,:,:))) = [];
     subplot(1,2,a)
     betalist = linspace(10,190,19);
-    warning('The X axis is not a real scale!!')
     for i = 1:4
-        [al aa(i)] = boundedline(betalist,condOnsetStat(i,:,1),[condOnsetStat(i,:,2); condOnsetStat(i,:,2)]')
+        pinds = find(~isnan(condOnsetStat(i,:,1)));
+        [al aa(i)] = boundedline(betalist(pinds),condOnsetStat(i,pinds,1),[condOnsetStat(i,pinds,2); condOnsetStat(i,pinds,2)]');
         al.Color = BB.struccmap(i,:);
         al.LineWidth = 2;
         al.LineStyle = ':';
         aa(i).FaceColor = BB.struccmap(i,:);
         aa(i).FaceAlpha = 0.6;
         
-%         [bl ba(i)] = boundedline(betalist,condPeakStat(i,:,1),[condPeakStat(i,:,2); condPeakStat(i,:,2)]')
-%         bl.Color = BB.struccmap(i,:);
-%         bl.LineWidth = 2;
-%         bl.LineStyle = '-';
-%         ba(i).FaceColor = BB.struccmap(i,:);
-%         ba(i).FaceAlpha = 0.6;
+        %         [bl ba(i)] = boundedline(betalist,condPeakStat(i,:,1),[condPeakStat(i,:,2); condPeakStat(i,:,2)]')
+        %         bl.Color = BB.struccmap(i,:);
+        %         bl.LineWidth = 2;
+        %         bl.LineStyle = '-';
+        %         ba(i).FaceColor = BB.struccmap(i,:);
+        %         ba(i).FaceAlpha = 0.6;
         
-        [cl ca(i)] = boundedline(betalist,condTermStat(i,:,1),[condTermStat(i,:,2); condTermStat(i,:,2)]')
+        [cl ca(i)] = boundedline(betalist(pinds),condTermStat(i,pinds,1),[condTermStat(i,pinds,2); condTermStat(i,pinds,2)]');
         cl.Color = BB.struccmap(i,:);
         cl.LineStyle = '--';
         cl.LineWidth = 2;
@@ -80,4 +116,49 @@ for CON = [1 3]
     if CON == 1
         set(gca, 'XDir', 'reverse')
     end
+    X = [5 110];
+    offset = 2.5;
+    % Now Plot Sig Bars
+    for i = 1:3
+        %% ONSET STARS
+        bX = pOnsetStar(i,:).*X(1);
+        bX(bX==0) = nan;
+        bX = bX + (i-1)*offset;
+        hold on
+        cp = plot(betalist,bX,'Color',BB.struccmap(i,:),'LineWidth',2);
+        %         cp.MarkerFaceColor = BB.struccmap(i,:);
+        %         cp.Marker = 'o';
+        
+% %         bX = pCorrOnsetStar(i,:).*X(1);
+% %         bX(bX==0) = nan;
+% %         bX = bX + (i-1)*offset;
+% %         hold on
+% %         csp = scatter(betalist,bX);
+% %         csp.Marker = 'o';
+% %         csp.MarkerFaceColor = BB.struccmap(i,:);
+% %         csp.MarkerEdgeColor = 'none';
+% %         csp.SizeData = 25;
+        
+        
+        
+        %% OFFSET STARS
+        bX = pOffsetStar(i,:).*X(2);
+        bX(bX==0) = nan;
+        bX = bX + (i-1)*offset;
+        hold on
+        cp = plot(betalist,bX,'Color',BB.struccmap(i,:),'LineWidth',2);
+        %         cp.MarkerFaceColor = BB.struccmap(i,:);
+        %         cp.Marker = 'o';
+        
+        bX = pCorrOffsetStar(i,:).*X(2);
+        bX(bX==0) = nan;
+        bX = bX + (i-1)*offset;
+        hold on
+        csp = scatter(betalist,bX);
+        csp.Marker = 'o';
+        csp.MarkerFaceColor = BB.struccmap(i,:);
+        csp.MarkerEdgeColor = 'none';
+        csp.SizeData = 25;
+    end
+    
 end

@@ -1,10 +1,11 @@
-function [R] = BAA_sim_lesionExp_cortical_rhythms(R,modID,simtime,fresh)
+function [R] = BAA_sim_lesionExp_cortical_rhythms(Rorg,modID,simtime,fresh)
 close all
 % Comopute simulations by sweeping across data
-[R,m,permMod,xsimMod{1}] = getSimModelData_v2(R,modID,simtime);
+[R,m,permMod,xsimMod{1}] = getSimModelData_v3(Rorg,modID,simtime);
 p = permMod{1}.par_rep{1};
-R = setSimTime(R,simtime);
-R.Bcond = -1;
+R = setSimTime(R,simtime); % This sets the simulatiomn time by modify R structure
+R.Bcond = -1; % No contrasting conditions
+
 cmap = brewermap(128,'RdBu');
 ckeypow = linspace(-100,75,128);
 ckeyfrq = linspace(-10,10,128);
@@ -46,7 +47,7 @@ R.obs.trans.norm = 0;
 Pbase = p;
 % powIJ_B = {}; peakIJ_B = {}; freqIJ_B{};
 if fresh == 1
-    for i = 5:size(condname,2)
+    for i = 1:4 %size(condname,2)
         Pbase_i = Pbase;
         %
         if i==2
@@ -54,7 +55,7 @@ if fresh == 1
         elseif i==3
             Pbase_i.A{1}(1,6) = -128; % Sever the thalamic input
         elseif i==4
-            Pbase_i.A{2}(6,5) = -128; % Sever the thalamic input       
+            Pbase_i.A{2}(6,5) = -128; % GPi -> Thal
         elseif i>4
             Pbase_i.A{1}(1,6) = -128; % Sever the thalamic input
             Pbase_i.int{1}.G(i-4) = -128;
@@ -66,9 +67,17 @@ if fresh == 1
         fitIJ(i) = r2;
         disp([i])
         figure(1)
+        subplot(1,2,1)
         plot(R.frqz,squeeze(feat_sim(1,1,1,3,:)));
         hold on
-        
+        subplot(1,2,2)
+        plot(R.frqz,squeeze(feat_sim(1,4,4,3,:)));
+        hold on
+        xlabel('Frequency')
+        ylabel('Power (a.u.)')
+%         subplot(3,1,3)
+%         plot(R.frqz,squeeze(feat_sim(1,1,4,4,:)));
+%         hold on        
     end
     save([R.rootn '\routine\' R.out.tag '\BetaBurstAnalysis\Data\BAA_lesion_CTX'],'powIJ_B','peakIJ_B','freqIJ_B',...
         'powIJ_B1','peakIJ_B1','freqIJ_B1',...

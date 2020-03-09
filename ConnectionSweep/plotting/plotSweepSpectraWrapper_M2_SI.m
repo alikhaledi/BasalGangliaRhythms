@@ -6,9 +6,9 @@ rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 cmap = brewermap(30,'Spectral');
 R.CONnames = {'M2 -> STN','STR -| GPe','GPe -| STN','STN -> GPe'};
 R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% STN->GPe'};
-cmap1 = brewermap(15,'Reds');
+cmap1 = brewermap(30,'Reds');
 % cmap1(22,:) = [0 0 0];
-cmap2 = brewermap(15,'Blues');
+cmap2 = brewermap(30,'Blues');
 % cmap2(28,:) = [0 0 0];
 ip = 0;
 for CON = [1 3]
@@ -16,14 +16,14 @@ for CON = [1 3]
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     figure(1)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:1:15,[1,1,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:2:30,[1,1,1])
     title(R.CONnames{CON})
     ylim([1e-15 0.5e-13])
     set(gca, 'YScale', 'log', 'XScale', 'log')
     
     figure(2)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:1:15,[1,4,4])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:2:30,[1,4,4])
     title(R.CONnames{CON})
     %     ylim([1e-16 1e-11])
     

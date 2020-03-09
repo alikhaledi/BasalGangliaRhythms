@@ -1,4 +1,5 @@
 function R = setupBasalGangliaModel(R)
+set(0,'defaultAxesFontName','Arial')
 %% This is a direct migration from the ABC repository. Has lots of unnecessary (unused) entries.
 R.projectn = 'Rat_NPD';
 R.out.tag = 'InDrt_ModCompRev2';
