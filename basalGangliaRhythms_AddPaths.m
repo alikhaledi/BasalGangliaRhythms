@@ -10,21 +10,27 @@ switch getenv('computername')
     case 'DESKTOP-94CEG1L'
         usname = 'timot'; gitpath =  '\Documents\GitHub'; madpath = 'Work\MATLAB ADDONS';
         spmpath = 'C:\Users\timot\Documents\GitHub\spm12';
+    case 'TIM_PC'
+        usname = 'Tim';
+        gitpath =  'D:\GITHUB';
+        madpath = 'D:\MATLAB ADDONS';
+        spmpath = 'D:\GITHUB\spm12-master';
 end
 
-R.rootn = ['C:\Users\' usname '\' gitpath '\BasalGangliaRhythms\'];
+R.rootn = [gitpath '\BasalGangliaRhythms\'];
 
 % Add the root
 addpath(genpath(R.rootn))
 
 % Add External Toolboxes
-addpath(genpath(['C:\Users\' usname '\' gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
+addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
 pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 if ~onPath; addpath(spmpath); spm eeg; close all; end
-addpath(genpath(['C:\Users\' usname '\' gitpath '\BurstToolbox']))
-addpath(['C:\Users\' usname '\Documents\' madpath '\Circular_Statistics_Toolbox'])
-% addpath(['C:\Users\' usname '\Documents\' madpath '\Neurospec\neurospec21'])
-%
+addpath(genpath([gitpath '\BurstToolbox']))
+addpath([madpath '\Circular_Statistics_Toolbox'])
+addpath([madpath '\Neurospec\neurospec21'])
+addpath([madpath '\DrosteEffect-BrewerMap-221b913'])
+addpath([madpath '\TWtools'])
 % pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 % if ~onPath; addpath(spmpath); spm eeg; close all; end
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])
