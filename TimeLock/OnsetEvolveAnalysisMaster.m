@@ -5,7 +5,7 @@ rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 condsel = 1:19;
 % close all
 a= 0;
-for CON = [3 1]
+for CON = [1 3]
     a = a+1;
     load([rootan '\BBA_' R.out.tag '_Sims_CON_' num2str(CON) '_bKF.mat'],'BB')
     BB.struccmap = linspecer(4);
@@ -52,7 +52,6 @@ for CON = [3 1]
             if size(TL.onsetT{cond},2)>3
                 [h pOnset(i,cond)] = ttest(TL.onsetT{cond}(4,:),TL.onsetT{cond}(i,:));
                 [h pOffset(i,cond)] = ttest(TL.onsetOffT{cond}(4,:),TL.onsetOffT{cond}(i,:));
-                
                 
                 % Segment Duration
                 [Rk pdum] = corrcoef(TL.segDur{cond}(4,:),TL.segDur{cond}(i,:),'rows','complete');
@@ -147,18 +146,18 @@ for CON = [3 1]
         bX = bX + (i-1)*offset;
         hold on
         cp = plot(betalist,bX,'Color',BB.struccmap(i,:),'LineWidth',2);
-        %         cp.MarkerFaceColor = BB.struccmap(i,:);
-        %         cp.Marker = 'o';
-        
-        bX = pCorrOffsetStar(i,:).*X(2);
-        bX(bX==0) = nan;
-        bX = bX + (i-1)*offset;
-        hold on
-        csp = scatter(betalist,bX);
-        csp.Marker = 'o';
-        csp.MarkerFaceColor = BB.struccmap(i,:);
-        csp.MarkerEdgeColor = 'none';
-        csp.SizeData = 25;
+%                 cp.MarkerFaceColor = BB.struccmap(i,:);
+%                 cp.Marker = 'o';
+% %         
+% %         bX = pCorrOffsetStar(i,:).*X(2);
+% %         bX(bX==0) = nan;
+% %         bX = bX + (i-1)*offset;
+% %         hold on
+% %         csp = scatter(betalist,bX);
+% %         csp.Marker = 'o';
+% %         csp.MarkerFaceColor = BB.struccmap(i,:);
+% %         csp.MarkerEdgeColor = 'none';
+% %         csp.SizeData = 25;
     end
     
 end

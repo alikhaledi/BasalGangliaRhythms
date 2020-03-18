@@ -15,6 +15,11 @@ switch getenv('computername')
         gitpath =  'D:\GITHUB';
         madpath = 'D:\MATLAB ADDONS';
         spmpath = 'D:\GITHUB\spm12-master';
+    case 'DESKTOP-1QJTIMO'
+        usname = 'Tim West';
+        gitpath =  'C:\Users\Tim West\Documents\GitHub';
+        madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
+        spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
 end
 
 R.rootn = [gitpath '\BasalGangliaRhythms\'];
@@ -30,6 +35,7 @@ addpath(genpath([gitpath '\BurstToolbox']))
 addpath([madpath '\Circular_Statistics_Toolbox'])
 addpath([madpath '\Neurospec\neurospec21'])
 addpath([madpath '\DrosteEffect-BrewerMap-221b913'])
+addpath([madpath '\SplitVec'])
 addpath([madpath '\TWtools'])
 % pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 % if ~onPath; addpath(spmpath); spm eeg; close all; end

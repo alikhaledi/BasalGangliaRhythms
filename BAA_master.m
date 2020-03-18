@@ -40,14 +40,14 @@ R = computeBurstWrapper(R);
 BB.struccmap = linspecer(4);
 % TimeLockAnalysisMaster(R); %,BB,[15 17 20]); % [15 17 20] for STN_GPE [1 6 8]
 OnsetEvolveAnalysisMaster(R)
-
+burstCoincidenceCheck(R)
 %% Compute Closed Loop Experiment
 simlength = 50;
-fresh = 0;
+fresh = 1;
 modID = 10;
 [R] = BAA_sim_fakeCloseLoop(R,modID,simlength,fresh);
 
-simlength = 70;
+simlength = 120;
 fresh = 1;
 [R] = BAA_sim_fakeCloseLoop_StateDependency(R,modID,simlength,fresh);
 

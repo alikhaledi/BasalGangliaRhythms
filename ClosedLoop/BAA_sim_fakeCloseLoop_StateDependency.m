@@ -1,6 +1,8 @@
 function [R] = BAA_sim_fakeCloseLoop_StateDependency(R,modID,simtime,fresh)
 % Load in model data
 % [R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,modID,simtime);
+stimsite = 4; % STN
+senssite = 1; % M2
 
 % or load from preload
 load([R.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
@@ -24,9 +26,9 @@ fsamp = 1/R.IntP.dt;
 if fresh
     for ctype =1:2
         % temp!
-        load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
-    'durStore','ampStore','ppcStore','siStore',...
-    'burInt','phaseShift','conStren')
+%         load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
+%             'durStore','ampStore','ppcStore','siStore',...
+%             'burInt','phaseShift','conStren')
         
         if ctype ==1
             conStren = [1 linspace(0.05,1.5,NcS)]; % [0.1 1 1.15]; STN-> GPe
@@ -63,6 +65,7 @@ if fresh
                 BB = compute_BurstThreshold(R,BB,1,0);
                 R.BB.minBBlength = 0.5; %o1 tl 1.5; %  Minimum burst period- cycles
                 BB.plot.durlogflag = 0;
+                R.BB.pairInd = [1 senssite]; % Use cortical burst sensing
                 BB = defineBetaEvents(R,BB);
                 
                 
@@ -83,9 +86,9 @@ if fresh
                         pU(pulseInds) = pulseKern;
                     end
                 end
-                pU = (0.25.*std(uc{1}(:,1))).*pU; %.*pulseAmp;
+                pU = (0.25.*std(uc{1}(:,stimsite))).*pU; %.*pulseAmp;
                 uc_ip{2} =  uc_ip{1};
-                uc_ip{2}{1}(:,1) = uc_ip{2}{1}(:,1) + pU'; % Give it a cortical pulse
+                uc_ip{2}{1}(:,stimsite) = uc_ip{2}{1}(:,stimsite) + pU'; % Give it a cortical pulse
                 
                 % Simulate with Stimulation
                 [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{2},Pbase,0);
@@ -114,6 +117,7 @@ if fresh
                 BB = compute_BurstThreshold(R,BB,1,0);
                 R.BB.minBBlength = 0.5; %o1 tl 1.5; %  Minimum burst period- cycles
                 BB.plot.durlogflag = 0;
+                R.BB.pairInd = [1 senssite]; % Use cortical burst sensing
                 BB = defineBetaEvents(R,BB);
                 
                 %% Now get statistics of the simulations (spectra/burst features)
@@ -128,16 +132,17 @@ if fresh
                     intpow(:,3,stm,p,cond) = sum(spec(R.frqz>21 & R.frqz<=30,:));
                     maxpow(:,3,stm,p,cond) = max(spec(R.frqz>21 & R.frqz<=30,:));
                     
-                    burRate(:,stm,p,cond) = BB.segRate{stm};
-                    burdur(:,stm,p,cond) = [nanmedian(BB.segDur{stm}) npCI(BB.segDur{stm})];
-                    burAmp(:,stm,p,cond) = [nanmedian(BB.segAmp{stm}) npCI(BB.segAmp{stm})];
-                    burPPC(:,stm,p,cond) = [nanmedian(BB.segPLV{stm}) npCI(BB.segPLV{stm})];
-                    burInt(:,stm,p,cond) = [nanmedian(BB.segInterval{stm}) npCI(BB.segInterval{stm})];
+                    burRate(:,stm,p,cond) = percentageChange(BB.segRate,stm);
+                    burdur(:,stm,p,cond) = [nanmedian(percentageChange(BB.segDur,stm)) npCI(percentageChange(BB.segDur,stm))];
+                    burAmp(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmp,stm)) npCI(percentageChange(BB.segAmp,stm))];
+                    burPPC(:,stm,p,cond) = [nanmedian(percentageChange(BB.segPLV,stm)) npCI(percentageChange(BB.segPLV,stm))];
+                    burInt(:,stm,p,cond) = [nanmedian(percentageChange(BB.segInterval,stm)) npCI(percentageChange(BB.segInterval,stm))];
                     
                     durStore{stm,p} = BB.segDur{stm};
                     ampStore{stm,p} = BB.segAmp{stm};
                     ppcStore{stm,p} = BB.segPLV{stm};
                     siStore{stm,p} = BB.segInterval{stm};
+%                     trajStore{stm,p} = BB.segTraj{stm};
                 end
                 
                 
@@ -148,7 +153,7 @@ if fresh
         mkdir([R.rootn '\data\CloseLoop_stateDependency'])
         save([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
             'durStore','ampStore','ppcStore','siStore',...
-            'burInt','phaseShift','conStren')
+            'burInt','phaseShift','conStren','trajStore')
     end
     
 end
@@ -157,7 +162,7 @@ end
 ctype = 1;
 load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
     'durStore','ampStore','ppcStore','siStore',...
-    'burInt','phaseShift','conStren')
+    'burInt','phaseShift','conStren','trajStore')
 %% First round of plots
 baseCon = 1;
 cmapDisc = brewermap(9,'Set1');
@@ -227,45 +232,45 @@ for  i = 1:5
         titname = 'Burst Rate';
         ylab = 'Burst Probability (sec-1)';
         ls = '-';
-        rlz = [125 175];
+        rlz = [-50 50]; %[1.25 1.75].*10^-6;
     elseif i == 2
-        X = squeeze(burInt(1,:,:,1))'.*1000;
-        Y = squeeze(burInt(2,:,:,1))'.*1000;
+        X = squeeze(burInt(1,:,:,1))';
+        Y = squeeze(burInt(2,:,:,1))';
         titname = 'Inter-Burst Interval';
         ylab = 'IBI (ms)';
-        rlz = [0 400];
+        rlz = [-50 50]; %[1.25 1.75].*10^-6;
     elseif i == 3
         X = squeeze(burAmp(1,:,:,1))';
         Y = squeeze(burAmp(2,:,:,1))';
         titname = 'Burst Amplitude';
         ylab = 'Peak Amplitude (a.u.)';
-        rlz = [1.25 1.75].*10^-6;
+        rlz = [-15 15]; %[1.25 1.75].*10^-6;
     elseif i == 4
         X = squeeze(burdur(1,:,:,1))';
         Y = squeeze(burdur(2,:,:,1))';
         titname = 'Burst Duration';
         ylab = 'Duration (ms)';
-        rlz = [50 150   ];
+        rlz = [-50 50]; %[1.25 1.75].*10^-6;
     elseif i == 5
         X = squeeze(burPPC(1,:,:,1))';
         Y = squeeze(burPPC(2,:,:,1))';
         titname = 'Burst STN/M2 Synchronization';
         ylab = 'PPC Magnitude';
-        rlz = [0.5 1];
+        rlz = [-50 50]; %[1.25 1.75].*10^-6;
     end
     %
     Z = X(:,1);
     X = X(:,2);
     
     subplot(2,3,i+1)
-    [l b] = boundedline((phaseShift),X,Y(:,2));
+    [l b] = boundedline((phaseShift),X,Y(:,2)./2);
     b.FaceAlpha = 0.8;
     hold on
     s = scatter((phaseShift(phsel)),X(phsel),75,cmap(phsel,:),'filled');
     
-    plot(phaseShift,Z,'LineWidth',1,'Color','k','LineStyle','--'); % Unstimulated median
-%     plot(phaseShift,Z-Y(:,1),'LineWidth',1,'Color','k','LineStyle','--'); % SEM
-%     plot(phaseShift,Z+Y(:,1),'LineWidth',1,'Color','k','LineStyle','--')
+    plot(phaseShift,Z,'LineWidth',1,'Color','k','LineStyle','-'); % Unstimulated median
+    plot(phaseShift,Z-Y(:,1)./2,'LineWidth',1,'Color','k','LineStyle','--'); % SEM
+    plot(phaseShift,Z+Y(:,1)./2,'LineWidth',1,'Color','k','LineStyle','--')
     
     xlabel('Stimulation Phase')
     ylabel(ylab)
@@ -288,7 +293,6 @@ load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_burstStats_save_' num2s
 [h p ci stats] = ttest2(durStore{1,pSup},durStore{2,pSup});
 durSV = [nanmean(durStore{1,pSup})-nanmean(durStore{2,pSup}) diff(ci)./2 stats.df stats.tstat p 0.05/5]
 
-
 [h p ci stats] = ttest2(ampStore{1,pSup},ampStore{2,pSup});
 ampSV = [nanmean(ampStore{1,pSup})-nanmean(ampStore{2,pSup}) diff(ci)./2 stats.df stats.tstat p 0.05/5]
 
@@ -297,6 +301,19 @@ siSV = [nanmean(siStore{1,pAmp})-nanmean(siStore{2,pAmp}) diff(ci)./2 stats.df s
 
 [h p ci stats] = ttest2(log(ppcStore{1,pSup}(3:end)),log(ppcStore{2,pSup}(3:end)));
 ppcSV = [nanmean(ppcStore{1,pAmp})-nanmean(ppcStore{2,pAmp}) diff(ci)./2 stats.df stats.tstat p 0.05/5]
+
+
+%% Trajectory Plots
+figure
+subplot(1,3,1)
+plot(nanmean(squeeze(trajStore{2,pAmp}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pSup}(4,:,:)),2))
+legend({'Amplifying','Supressing'});
+subplot(1,3,2)
+plot(nanmean(squeeze(trajStore{1,pAmp}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pAmp}(4,:,:)),2))
+legend({'Base','Amplifying'});
+subplot(1,3,3)
+plot(nanmean(squeeze(trajStore{1,pSup}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pSup}(4,:,:)),2))
+legend({'Base','Supressing'});
 
 function ci = npCI(X)
 N = numel(X);
@@ -312,6 +329,10 @@ if (ub>0) & (lb>0)
 else
     ci = nan;
 end
+
+function prcD = percentageChange(PLR,stm)
+prcD = ((PLR{stm}-nanmedian(PLR{1}))./nanmedian(PLR{1}))*100; % Make Amp % Change
+
 % % % Burst Duration
 % % X = burdur';
 % % X = 100.*(X(:,2)-X(:,1))./X(:,1);
