@@ -1,40 +1,44 @@
-function [R] = BAA_sim_fakeCloseLoop_StateDependency(Rorg,modID,simtime,fresh)
+function [R] = BAA_sim_fakeCloseLoop_StateDependency_v2(Rorg,modID,simtime,fresh)
 % Load in model data
 % [R,m,permMod,xsimMod{1}] = getSimModelData_v3(R,modID,simtime);]
-
-% Stimualating M2
-stimsite = 1; % M2
-senssite = 4; % STN
-stim_sens = 'stimM2_sensSTN';
-% 
-% Stimulating  STN
-% stimsite = 4; % STN
-% senssite = 1; % M2
-% stim_sens = 'stimSTN_sensM2'
-% 
-
-
 % or load from preload
 load([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
+R.filepathn =  Rorg.filepathn;
+R.rootn =  Rorg.rootn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-pause(1)
+% pause(1)
+
+%% Define stimulation conditions
+% Stimualating M2
+% senssite = 4; % STN
+% stimsite = 1; % M2
+% stim_sens = 'stimM2_sensSTN';
+%
+% Stimulating  STN
+senssite = 1; % M2
+stimsite = 4; % STN
+stim_sens = 'stimSTN_sensM2';
+
+R.IntP.phaseStim.sensStm = [senssite stimsite];
 
 P = permMod{1}.par_rep{1};
 % Simulation Coniditions
 R.obs.csd.df = 0.5;
 R = setSimTime(R,simtime);
 R.obs.trans.norm = 0; % No normalization of spectra
-R.IntP.intFx = @spm_fx_compile_120319;
+R.obs.brn = R.obs.brn.*3;
+R.IntP.intFx = @spm_fx_compile_120319_stim;
 phaseShift = linspace(0,2.*pi,13); %13% List of phases to be tested
 phaseShift = phaseShift(1:12); %12
 tplot = 0;
 % Give all timeseries the same input - makes comparable
+rng(4342142)
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
 fsamp = 1/R.IntP.dt;
 
 if fresh
-    for ctype = 1:2
+    for ctype = 1;%:2
         %% CLEAR
         intpow = [];
         maxpow = [];
@@ -71,7 +75,7 @@ if fresh
         
         NcS = [1 ck_1(CON,:)];
         
-        for cond = 1:numel(NcS)
+        for cond = 1; %:numel(NcS)
             
             % Get Base Parameters
             Pbase = P;
@@ -90,58 +94,34 @@ if fresh
                 uc_ip{1} = uc;
                 
                 %% Simulate Base Model
+                R.IntP.phaseStim.switch = 0 ;                 R.IntP.phaseStim.filtflag = 0;
+
                 [~,~,feat_sim{1},~,xsim_ip{1}] = computeSimData(R,m,uc_ip{1},Pbase,0);
                 
-                % Now find bursts that will be used to parameterize
-                % stimulation
-                R.condname = {'1'};
-                [R,BB] = compute_BetaBursts_Simulated(R,xsim_ip{1},0);
-                if cond == 1 && ctype == 1
-                    R.BB.thresh_prctile = 75;% o85; tl 80
-                    R.BB.threshold_type = 'baseModelThresh';
-                    RBB = compute_BurstThreshold(R,BB,1,0);
-                end
-                
-                BB.epsAmpfull = RBB.epsAmpfull;
-                BB.epsAmp = RBB.epsAmp;
-                BB.epsPLV = RBB.epsPLV;
-                
-                R.BB.minBBlength = 1; %o1 tl 1.5; %  Minimum burst period- cycles
-                BB.plot.durlogflag = 0;
-                R.BB.pairInd = [1 senssite]; % Use cortical burst sensing
-                BB = defineBetaEvents(R,BB);
-                
-                
                 %% Resimulate with Phase-Locked Input
-                % Now decide the timing of the intervention!
-                pulseWid = (0.3.*fsamp);
-                pulseDelay = (0.*fsamp);
-                
-                % Setup the Stimulation Input
-                pU = zeros(size(R.IntP.tvec));
-                pulseStart = [];
-                for seg = 1:numel(BB.segInds{1})
-                    pulseStart(seg) = BB.segInds{1}{seg}(1) + pulseDelay;
-                    pulseInds = pulseStart(seg):pulseStart(seg)+pulseWid-1;
-                    if pulseInds(end)<=size(BB.Phi{1},2) % Ensure always within sample range
-                        pulse_Phi = BB.Phi{1}(senssite,pulseInds);
-                        pulseKern = sin(pulse_Phi+(phaseShift(p))); %
-                        pU(pulseInds) = pulseKern;
-                    end
-                end
-                pU = (1/4.*std(uc{1}(:,stimsite))).*pU; %.*pulseAmp;
-                uc_ip{2} =  uc_ip{1};
-                uc_ip{2}{100} = zeros(size(uc_ip{1}{1}));
-                uc_ip{2}{100}(:,stimsite) =  pU'; % Give it a cortical pulse
-                
+                R.IntP.phaseStim.switch = 1;
+                %                 R.IntP.phaseStim.stimfreq = 18;
+                R.IntP.phaseStim.buff = 3; % This is the buffer used to compute the current phase
+                R.IntP.phaseStim.minBS =  ((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
+                R.IntP.phaseStim.trackdelay = 0.25; % this is the delay to take (as the end of the hilbert in unstable
+                R.IntP.phaseStim.stimlength = 0.3; % 300ms stim delivery
+                R.IntP.phaseStim.stimAmp = 1/4; % times the variance of the normal input
+                R.IntP.phaseStim.regleng = 3/18; % 500ms regression only
+                %                 R.IntP.phaseStim.thresh = BB.epsAmp;
+                R.IntP.phaseStim.bpfilt = designfilt('bandpassiir', 'FilterOrder', 20,...
+                    'HalfPowerFrequency1', 15, 'HalfPowerFrequency2', 21,...
+                    'SampleRate', 1/R.IntP.dt);
+                R.IntP.phaseStim.phaseshift = phaseShift(p);
+                R.IntP.phaseStim.filtflag = 0;
+                R.IntP.phaseStim.epsthresh = 25;
                 % Simulate with Stimulation
-                [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{2},Pbase,0);
+                [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{1},Pbase,0);
                 
                 if tplot == 1
                     % Optional Plots for TimeSeries
                     figure(100)
-                    a(1) = subplot(3,1,1);
-                    plot(Rout.IntP.tvec_obs,pU);
+                    %                     a(1) = subplot(3,1,1);
+                    %                     plot(Rout.IntP.tvec_obs,pU);
                     
                     a(2) = subplot(3,1,2);
                     plot(Rout.IntP.tvec_obs,xsim_ip{1}{1}(1,2:end));
@@ -160,13 +140,9 @@ if fresh
                 % Re-compute bursts (simulated data)
                 R.condname = {'1','2'};
                 [R,BB] = compute_BetaBursts_Simulated(R,{xsim_ip{1}{1} xsim_ip{2}{1}});
-                %                 R.BB.thresh_prctile = 75;% o85; tl 80
-                %                 R.BB.threshold_type = 'baseModelThresh';
-                %                 BB = compute_BurstThreshold(R,BB,1,0);
-                
-                BB.epsAmpfull = RBB.epsAmpfull;
-                BB.epsAmp = RBB.epsAmp;
-                BB.epsPLV = RBB.epsPLV;
+                R.BB.thresh_prctile = 75;% o85; tl 80
+                R.BB.threshold_type = 'baseModelThresh';
+                BB = compute_BurstThreshold(R,BB,1,0);
                 
                 R.BB.minBBlength = 1; %o1 tl 1.5; %  Minimum burst period- cycles
                 BB.plot.durlogflag = 0;

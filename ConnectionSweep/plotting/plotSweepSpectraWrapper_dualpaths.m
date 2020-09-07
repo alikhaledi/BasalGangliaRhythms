@@ -1,4 +1,4 @@
-function R = plotSweepSpectraWrapper(R)
+function R = plotSweepSpectraWrapper_dualpaths(R)
 close all
 rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 
@@ -10,10 +10,10 @@ cmap1 = brewermap(40,'Reds');
 cmap2 = brewermap(40,'Blues');
 % cmap2(28,:) = [0 0 0];
 ip = 0;
-for CON = [1 3]
+for CON = [1 2]
     ip = ip + 1;
-    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
-    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_feat_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_ck_1_F1.mat'])
     figure(1)
     subplot(2,2,ip)
     plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,4,1])
@@ -30,11 +30,11 @@ for CON = [1 3]
 end
 
 ip = 0;
-for CON = [1 3]
+for CON = [1 2]
         ip = ip + 1;
-    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
-    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
-    load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_xsim_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_feat_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_ck_1_F1.mat'])
+    load([rootan '\BB_' R.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_xsim_F1.mat'])
     bpow = []; fpow = [];
     [bpowr_br,fpow_br,bpowr,fpow,bcohr,fcoh,fpowCtx,bpowrCtx] = computeBetaSpectralStats(R.frqz,feat)
     ck_1 = ck_1(CON,:); % The scale for this connection modification

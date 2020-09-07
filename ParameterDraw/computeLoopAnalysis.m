@@ -1,6 +1,7 @@
-function [] = computeModelDrawParameters(R,permMod)
-
+function [] = computeLoopAnalysis(R,permMod)
 close all
+% This function will run through the 
+
 load('ConnectionStrengthEX.mat')
 
 E(1) = EX(1,1); % MMC
@@ -87,8 +88,8 @@ starheight(:,3) = [20 800];
 
 % YLIM bar heights for (1) Net strength, (2) EI
 ylax(:,:,1) = [-25 25; -1000 2000];
-ylax(:,:,2) = [-25 25; -1000 1000];
-ylax(:,:,3) = [-25 25; -1000 1000];
+ylax(:,:,2) = [-25 25; -1000 2000];
+ylax(:,:,3) = [-25 25; -1000 2000];
 
 % XYLIM scatter heights for (1) Net strength, (2) EI
 ylax2(:,:,1) = [-15 -12; -15 -12];
@@ -104,7 +105,7 @@ anotpos(:,:,1) = [15 -14.5; -1200 -14.5];
 anotpos(:,:,2) = [-40 -12.5; -1500 -12.5];
 anotpos(:,:,3) = [15 0.85; 800 0.85];
 
-varList = {'log10(bpowr_br)','log10(bpowCTX)','bcohr'};
+varList = {'log10(bpowr)','log10(bpowCTX)','bcohr'};
 varNames = {'log STN Pow.','log CTX Pow.','CTX/STN Coh'};
 cnt = 0;
 for V = varList

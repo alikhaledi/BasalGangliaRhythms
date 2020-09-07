@@ -1,4 +1,4 @@
-function [R] = BAA_sim_ConnectionSweep_v2(Rorg,modID,simtime,HD)
+function [R] = BAA_sim_ConnectionSweep_dualpaths(Rorg,modID,simtime,HD)
 
 % Comopute simulations by sweeping across data
 % [R,m,permMod] = getSimModelData_v3(Rorg,modID,simtime);
@@ -56,21 +56,18 @@ elseif HD == 3
     
 end
 
-%% Compute Noise
 % Give all timeseries the same input - makes comparable
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
 XBase = permMod{1}.par_rep{1};
-R.IntP.getNoise = 1; % This turns off all the connections to get resting endogenous noise for each node
 R.obs.SimOrd = 10;
 R.obs.trans.norm = 0;
 R.obs.gainmeth = {};
-[dum1,dum2,feat_sim_noise,dum3,xsim_noise] = computeSimData(R,m,uc,XBase,0);
 
 %% Loop through Connections
 R.IntP.getNoise = 0;
 m = m;
-for CON = [1 3]
+for CON = 3
     feat = {};
     xsim = {};
     for i = 1:size(ck_1,2)
@@ -78,12 +75,11 @@ for CON = [1 3]
         Pbase = XBase;
         if CON == 1 % Hyperdirect
             Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*ck_1(CON,i)); %
-        elseif CON == 2 % Striatal-pallidal
-            Pbase.A{2}(3,2) = log(exp(Pbase.A{2}(3,2))*ck_1(CON,i)); %
+            Pbase.A{2}(4,3) = -32; %
+
         elseif CON == 3 % Pallidal-subthalamo
             Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*ck_1(CON,i)); %
-        elseif CON == 4 % Subthalamo-pallidal
-            Pbase.A{1}(3,4) = log(exp(Pbase.A{1}(3,4))*ck_1(CON,i)); %
+            Pbase.A{1}(4,1) = -32; %
         end
         [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData(R,m,uc,Pbase,0);
         feat{i} = feat_sim;
@@ -92,10 +88,9 @@ for CON = [1 3]
     rootan = [Rorg.rootn 'data\' Rorg.out.oldtag '\ConnectionSweep'];
     mkdir(rootan)
     
-    save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext '.mat'],'feat')
-    save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_CON_' num2str(CON) '_xsim' hdext '.mat'],'xsim')
-    save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1' hdext '.mat'],'ck_1')
+    save([rootan '\BB_' Rorg.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_feat' hdext '.mat'],'feat')
+    save([rootan '\BB_' Rorg.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_xsim' hdext '.mat'],'xsim')
+    save([rootan '\BB_' Rorg.out.tag '_ConnectionSweepDualPaths_CON_' num2str(CON) '_ck_1' hdext '.mat'],'ck_1')
 end
 
-save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_noise.mat'],'xsim_noise','feat_sim_noise')
 
