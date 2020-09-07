@@ -1,4 +1,4 @@
-function [xstore_cond,tvec,wflag,J,Es] = spm_fx_compile_120319(R,x,uc,pc,m)
+function [xstore_cond,tvec,wflag,J,Es] = spm_fx_compile_120319_stim(R,x,uc,pc,m)
 % To Do:
 % 1)Precompute the expectations of the within source parameters and take
 %   outside of the integration loop.
@@ -12,6 +12,7 @@ end
 
 cs = 0; % cond counter
 wflag= 0; tvec = [];
+epsStim = 0; % this is the local threshold computation
 for condsel = 1:numel(R.condnames)
     cs = cs+1;
     us = uc{cs};
@@ -281,26 +282,31 @@ for condsel = 1:numel(R.condnames)
         end
         xint = xint + (f.*dt);
         xstore = [xstore xint]; % This is done for speed reasons! Faster than indexing (!!)
-        if any(isnan(xint))
-            a = 1;
-        end
-        if tstep >R.IntP.buffer*10
-            if any(xint>1e4) || any(isnan(xint))
-                wflag= 1;
-                break
+
+        %% Stim set
+        if tstep >((R.obs.brn)/dt) && (rem(tstep,25) == 0) %&& ~any(uexs(tstep,:))
+            if R.IntP.phaseStim.switch
+                 [uexs,epsStim,R] = zeroCrossingPhaseStim(uexs,R,tstep,xstore,dt,epsStim,std(us(:,R.IntP.phaseStim.sensStm(2))));
             end
-            pp1 = 1;
         end
-        % disp(tstep/R.IntP.nt)
-        % xint= spm_unvec(x,M.x);
+        
+        if any(xint>1e4) || any(isnan(xint))
+            wflag= 1;
+            break
+        end
     end
-    if wflag == 1
-        xstore_cond{condsel} = NaN;
-    end
-    xstore_cond{condsel} = xstore;
-    if nargout>3
-        [J{condsel},Es{condsel}] = findJacobian(R,xstore(:,end-R.IntP.buffer:end),uc,p,m);
-    end    % tvec = linspace(R.IntP.buffer*R.IntP.dt,R.IntP.nt*R.IntP.dt,R.IntP.nt);
-    a = 1;
+    % disp(tstep/R.IntP.nt)
+    % xint= spm_unvec(x,M.x);
+end
+mkdir([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\'])
+save([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
+if wflag == 1
+    xstore_cond{condsel} = NaN;
+end
+xstore_cond{condsel} = xstore;
+if nargout>3
+    [J{condsel},Es{condsel}] = findJacobian(R,xstore(:,end-R.IntP.buffer:end),uc,p,m);
+end    % tvec = linspace(R.IntP.buffer*R.IntP.dt,R.IntP.nt*R.IntP.dt,R.IntP.nt);
+a = 1;
 end
 

@@ -6,9 +6,9 @@ rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 cmap = brewermap(30,'Spectral');
 R.CONnames = {'M2 -> STN','STR -| GPe','GPe -| STN','STN -> GPe'};
 R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% STN->GPe'};
-cmap1 = brewermap(30,'Reds');
+cmap1 = brewermap(40,'Reds');
 % cmap1(22,:) = [0 0 0];
-cmap2 = brewermap(30,'Blues');
+cmap2 = brewermap(40,'Blues');
 % cmap2(28,:) = [0 0 0];
 ip = 0;
 for CON = [1 3]
@@ -16,14 +16,14 @@ for CON = [1 3]
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     figure(1)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:2:30,[1,1,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:5:35,[1,1,1])
     title(R.CONnames{CON})
-    ylim([1e-15 0.5e-13])
+    ylim([1e-15 1e-13])
     set(gca, 'YScale', 'log', 'XScale', 'log')
     
     figure(2)
     subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:2:30,[1,4,4])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}},[1 5 15],1:5:35,[1,4,4])
     title(R.CONnames{CON})
     %     ylim([1e-16 1e-11])
     
@@ -51,65 +51,64 @@ for CON = [1 3]
         ck_1 = ck_1(CON,:); % The scale for this connection modification
 
     % Scale bpow to 0
-    [a zind] = min(abs(ck_1-1));
-    bpow = 100*(bpowr)./bpowr(zind);
-    bpowr_br = 100*(bpowr_br)/bpowr_br(zind);
+    [a zind] = min(abs(ck_1-1)); % base model
+    bpowr = 100*(bpowr-bpowr(zind))/bpowr(zind);
+    bpowr_br = 100*(bpowr_br-bpowr_br(zind))/bpowr_br(zind);
+        bcohr = 100*(bcohr-bcohr(zind))/bcohr(zind);
+
     % Remove non-physiological
-    powInds = find(bpowr>1e-8);
+    powInds = find(bpowr>500);
     fpow(powInds) = nan(1,numel(powInds));
     bpow(powInds) = nan(1,numel(powInds));
+        bpowr(powInds) = nan(1,numel(powInds));
     fcoh(powInds) = nan(1,numel(powInds));
     bcohr(powInds) = nan(1,numel(powInds));
     
-    % Find the indices of band power
-    [dum b1] = min(abs(bpowr_br-10));
-    [dum b2] = min(abs(bpowr_br-100));
-    [dum b3] = min(abs(bpowr_br-190));
-    betaKrange(:,CON) = [b1 b2 b3];
-    
-    
+
+        bsel = 1:5:35;
+   
     figure(1)
     subplot(2,2,ip+2)
-    br = plot(log10(ck_1(1,:)),(bpow),'k-');
+    br = plot(ck_1(1,:)*100,(bpowr(:)),'k-');
     hold on
-    Sr = scatter(log10(ck_1(1,:)),(bpow),50,cmap1,'filled');
-    ylabel('log % of Fitted Power')
-    grid on
+    Sr = scatter(ck_1(1,bsel)*100,(bpowr(bsel)),50,cmap1(bsel,:),'filled');
+    ylabel('log % of STN Fitted Power')
+    grid on; set(gca,"XScale",'log')
     
     yyaxis right
-    br = plot(log10(ck_1(1,:)),(fpow),':');
+    br = plot(ck_1(1,:)*100,(fpow(:)),':');
     hold on
-    Sr = scatter(log10(ck_1(1,:)),(fpow),50,cmap2,'filled');
+    Sr = scatter(ck_1(1,bsel)*100,(fpow(bsel)),50,cmap2(bsel,:),'filled');
     Sr.Marker = 'diamond';
     ylabel('Peak Frequency (Hz)')
     xlabel('log_{10} % Connection Strength')
     title(R.CONnames{CON})
-    xlim([-1 1]); ylim([12 25])
+    xlim([10 1000]); 
+    ylim([12 25])
     yyaxis left
-    ylim([10 400])
-        set(gcf,'Position',[600         374        760         604])
-
+    ylim([-100 200])
+    
     figure(2)
     subplot(2,2,ip+2)
-    br = plot(log10(ck_1(1,:)),bcohr,'k-');
+    br = plot(ck_1(1,:)*100,bcohr(:),'k-');
     hold on
-    Sr = scatter(log10(ck_1(1,:)),bcohr,50,cmap1,'filled');
-    ylabel('STN/M2 Coherence')
-    grid on
+    Sr = scatter(ck_1(1,bsel)*100,bcohr(bsel),50,cmap1(bsel,:),'filled');
+    ylabel('M2/STN Coherence')
+    grid on; set(gca,"XScale",'log')
     
     yyaxis right
-    br = plot(log10(ck_1(1,:)),(fcoh),':');
+    br = plot(ck_1(1,:)*100,(fcoh(:)),':');
     hold on
-    Sr = scatter(log10(ck_1(1,:)),(fcoh),50,cmap2,'filled');
+    Sr = scatter(ck_1(1,bsel)*100,(fcoh(bsel)),50,cmap2(bsel,:),'filled');
     Sr.Marker = 'diamond';
     ylabel('Peak Coh. Frequency (Hz)')
     xlabel('log_{10} % Connection Strength')
     title(R.CONnames{CON})
-    xlim([-1 1]); ylim([12 25])
+    xlim([10 1000]); 
+    ylim([12 25])
     yyaxis left
-    ylim([0 1])
-        set(gcf,'Position',[600         374        760         604])
+    ylim([-75 75])
 
 end
-R.betaKrange = betaKrange;
+% R.betaKrange = betaKrange;
 % R.betaKrange(3,3) = 19;

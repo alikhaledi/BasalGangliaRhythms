@@ -8,7 +8,10 @@ switch getenv('computername')
         usname = 'twest'; gitpath = '\Documents\Work\GitHub'; madpath = 'Work\MATLAB ADDONS';
         spmpath = 'C:\spm12';
     case 'DESKTOP-94CEG1L'
-        usname = 'timot'; gitpath =  '\Documents\GitHub'; madpath = 'Work\MATLAB ADDONS';
+        usname = 'timot';
+        gitpath =  'C:\Users\timot\Documents\GitHub';
+        gitpath2 =  'D:\GITHUB_STORE\';
+        madpath = 'C:\Users\timot\Documents\Work\MATLAB ADDONS';
         spmpath = 'C:\Users\timot\Documents\GitHub\spm12';
     case 'TIM_PC'
         usname = 'Tim';
@@ -21,8 +24,12 @@ switch getenv('computername')
         madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
         spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
 end
+% Sometimes the main project is some other folder to Github default
+if ~exist('gitpath2','var')
+    gitpath2 = gitpath;
+end
 
-R.rootn = [gitpath '\BasalGangliaRhythms\'];
+R.rootn = [gitpath2 '\BasalGangliaRhythms\'];
 
 % Add the root
 addpath(genpath(R.rootn))
