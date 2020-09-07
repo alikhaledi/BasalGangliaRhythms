@@ -35,7 +35,6 @@ for CON = [1 3]
         
         [R,BB] = compute_BetaBursts_Simulated(R,xsimMod);
         R.BB.thresh_prctile = 75;% o85; tl 80
-        BB.threshold_type = 'localThresh'
         BB = compute_BurstThreshold(R,BB,condsel,0);
         R.BB.minBBlength = 1; %  Minimum burst period- cycles
         BB.plot.durlogflag = 0;

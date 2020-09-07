@@ -6,6 +6,11 @@ postBo = [Bo(1): Bo(1) + floor((TL.periodT(2)/1e3)*BB.fsamp) + 1]; % post burst 
 epochdef = [preBo(1):postBo(end)];
 TL.epochT = linspace(TL.periodT(1),TL.periodT(2),size(epochdef,2));
 
+postBo2 = [Bo(1): Bo(1) + floor((TL.periodT(3)/1e3)*BB.fsamp) + 1]; % post burst onset (indices)
+epochdef_off = [preBo(1):postBo2(end)];
+TL.epochT_off = linspace(TL.periodT(1),TL.periodT(3),size(epochdef_off,2));
+
+
 % LocalEps
 localeps = BB.epsAmpfull;
 segInds = BB.segInds{cond};
@@ -15,15 +20,18 @@ for i = 1:numel(segInds)-1
     Bo = segInds{i};
     preBo = [Bo(1)+ floor((TL.periodT(1)/1e3)*BB.fsamp):Bo(1)-1]; %pre burst onset
     postBo = [Bo(1): Bo(1) + floor((TL.periodT(2)/1e3)*BB.fsamp) + 1]; % post burst onset
-    
     epochdef = [preBo(1):postBo(end)];
-    
+    postBo2 = [Bo(1): Bo(1) + floor((TL.periodT(3)/1e3)*BB.fsamp) + 1]; % post burst onset (indices)
+    epochdef_off = [preBo(1):postBo2(end)];
+
     % Convert from full time to SW time
-    if preBo(1)>0 && postBo(end)<size(BB.AEnv{cond},2)
+    if preBo(1)>0 && postBo2(end)<size(BB.AEnv{cond},2)
         % Find onset Time aligned to beta onset
         A = BB.AEnv{cond}(:,epochdef);%.*hanning(numel(epochdef))'; % amplitude data
 %         Apost = [zeros(size(A,1),size(preBo,2)) BB.AEnv{cond}(:,postBo)];%.*hanning(numel(epochdef))'; % amplitude data
         AH = BB.AEnv{cond}(:,epochdef).*hanning(numel(epochdef))'; % amplitude data
+        AOFF = BB.AEnv{cond}(:,epochdef_off); % amplitude data
+        
         % Find Crossing times with respect to STN onset
         epsCross = []; maxCross = []; epsLast = [];
         for L = 1:size(BB.AEnv{cond},1)
@@ -31,13 +39,20 @@ for i = 1:numel(segInds)-1
                 [dum ec] = find(A(L,:)>=prctile(A(L,:),95),1,'first');
                 maxCross(L) =  TL.epochT(ec);
                 
-                [dum ec] = find(AH(L,:)>localeps(L),1,'first');
+%                 betaBurstInds = SplitVec(find(AH(L,:)>localeps(L)),'consecutive'); % Split up data based upon the target threshold
+%                 segL = cellfun('length',betaBurstInds);
+                
+                [dum ec] = find(A(L,:)>localeps(L),1,'first');
                 epsCross(L) =  TL.epochT(ec);
-                
-                
-                [dum ec] = find(AH(L,:)>localeps(L),1,'last');
-                epsLast(L) =  TL.epochT(ec);
-                
+                %                 epsCross(L) = min(BB.Tvec{cond}(BB.segInds{cond}{L}))
+                Atmp = AOFF(L,:);
+                Atmp(1:ec-1) = inf;
+                [dum ec] = find(Atmp<localeps(L),1,'first');
+                try
+                    epsLast(L) =  TL.epochT_off(ec);
+                catch
+                    epsLast(L) =  TL.epochT_off(end);
+                end
             else
                 epsCross(L) = NaN;
                 maxCross(L) = NaN;

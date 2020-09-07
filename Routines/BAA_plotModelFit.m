@@ -1,8 +1,11 @@
 function [R] = BAA_plotModelFit(Rorg,modID,simtime)
+% Simulate the Base Model
 Rorg.obs.gainmeth = {'unitvar','boring'};
- Rorg.obs.trans.norm = 1; Rorg.obs.trans.gauss = 1;
- Rorg.obs.obsstates = [1:6];
- Rorg.chloc_name = Rorg.chsim_name;
+Rorg.obs.trans.norm = 1; % Normalize the output spectra
+Rorg.obs.trans.gauss = 1; % Smooth with sum of 3 gaussians
+Rorg.obs.obsstates = [1:6]; % All 6 nodes are observed
+Rorg.chloc_name = Rorg.chsim_name; % Ensure sim names match to output names
+% Call the simulator
 [R,m,permMod,xsimMod] = getSimModelData_v3(Rorg,modID,simtime,1);
 
 
@@ -20,20 +23,24 @@ for i = 1:6
 end
 xlim([30 40])
 set(gcf,'Position',[50         550        1686         436])
-R = prepareRatData_NoGauss_Group_NPD(R);
-figure
-plotABCSpectraOnly(R.data.feat_xscale,R.data.feat_emp,permMod{1}.feat_rep{1})
-figure
-ab = npdplotter_110717({R.data.feat_emp},{permMod{1}.feat_rep{1}},R.data.feat_xscale,R,[],[])
+R = prepareRatData_NoGauss_Group_NPD(R,0,0);
 
+figure
+plotABCSpectraOnly(Rorg.data.feat_xscale,Rorg.data.feat_emp,permMod{1}.feat_rep{1})
+figure
+npdplotter_110717({R.data.feat_emp},{permMod{1}.feat_rep{1}},R.data.feat_xscale,R,[],[])
+
+
+
+
+
+%% SCRIPT GRAVE %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % for i = 1:36
 %     if ~any(intersect([1 8 15 22 29 36],i))
 %         subplot(6,6,i)
 %         ylim([0 1])
 %     end
 % end
-
-
 % A = X(6,:);
 % 
 % STN_slow = ft_preproc_bandpassfilter(X(4,:),2000,[0.5 4],[],'fir');
@@ -64,7 +71,4 @@ ab = npdplotter_110717({R.data.feat_emp},{permMod{1}.feat_rep{1}},R.data.feat_xs
 % % subplot(1,3,3)
 % % imagesc(lags,fast_list,lagstore_j')
 % % set(gca,'YDir','normal'); xlim([-1000 1000])
-% 
-% 
-% 
-% 
+
