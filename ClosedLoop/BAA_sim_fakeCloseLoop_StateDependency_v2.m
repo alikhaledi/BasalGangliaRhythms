@@ -37,7 +37,7 @@ uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
 
 if fresh
-    for ctype = 2
+    for ctype = 1
         %% CLEAR
         intpow = [];
         maxpow = [];
@@ -72,7 +72,7 @@ if fresh
         NcS = ck_1(CON,1:2:end);       
         NcS = [1 ck_1(CON,:)];
         
-        for cond = 1:numel(NcS)
+        for cond = 1; %:numel(NcS)
             
             % Get Base Parameters
             Pbase = P;
@@ -171,7 +171,8 @@ if fresh
                         burAmpMid(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmpMid,stm)) npCI(percentageChange(BB.segAmpMid,stm))];
                         burPPC(:,stm,p,cond) = [nanmedian(percentageChange(BB.segPLV,stm)) npCI(percentageChange(BB.segPLV,stm))];
                         burInt(:,stm,p,cond) = [nanmedian(percentageChange(BB.segInterval,stm)) npCI(percentageChange(BB.segInterval,stm))];
-                        
+                        burRP{1,stm,p,cond} = squeeze(BB.segRP{stm}(:,3,4));
+                        burRP{2,stm,p,cond} = squeeze(BB.segRP{stm}(:,1,4));
                         durStore{stm,p} = BB.segDur{stm};
                         ampStore{stm,p} = BB.segAmp{stm};
                         ppcStore{stm,p} = BB.segPLV{stm};
@@ -203,7 +204,7 @@ if fresh
         save([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '_' stim_sens '_thresholdFitted.mat'],'powspec_save',...
             'intpow','maxpow','burRate','burdur','burAmp','burAmpMid','burPPC',...
             'durStore','ampStore','ppcStore','siStore',...
-            'burInt','phaseShift','NcS'); %,'trajStore')
+            'burInt','phaseShift','NcS','burRP'); %,'trajStore')
     end
     
 end
@@ -213,7 +214,7 @@ ctype = 1;
 load([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '_' stim_sens '_thresholdFitted.mat'],'powspec_save',...
     'intpow','maxpow','burRate','burdur','burAmp','burAmpMid','burPPC',...
     'durStore','ampStore','ppcStore','siStore',...
-    'burInt','phaseShift','NcS'); %,'trajStore')
+    'burInt','phaseShift','NcS','burRP'); %,'trajStore')
 %% First round of plots
 % cmapDisc = brewermap(9,'Set1');
 % cmap = brewermap(numel(phaseShift)+4,'Reds');
