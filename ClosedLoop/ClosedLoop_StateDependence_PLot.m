@@ -38,7 +38,7 @@ phaseShift = rad2deg(phaseShift);
 %     intpow_nmz = intpow_nmz(:,2:end);
     
     figure(1)
-    NcS_sel = [1 5 10 15 21 25];
+    NcS_sel = [1:3:19];
 
     subplot(2,3,panInd(1))
     p = plot(phaseShift,intpow_nmz(:,NcS_sel),'LineWidth',2);
