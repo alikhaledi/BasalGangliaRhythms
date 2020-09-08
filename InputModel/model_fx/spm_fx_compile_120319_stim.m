@@ -12,7 +12,7 @@ end
 
 cs = 0; % cond counter
 wflag= 0; tvec = [];
-epsStim = 0; % this is the local threshold computation
+
 for condsel = 1:numel(R.condnames)
     cs = cs+1;
     us = uc{cs};
@@ -286,7 +286,7 @@ for condsel = 1:numel(R.condnames)
         %% Stim set
         if tstep >((R.obs.brn)/dt) && (rem(tstep,25) == 0) %&& ~any(uexs(tstep,:))
             if R.IntP.phaseStim.switch
-                 [uexs,epsStim,R] = zeroCrossingPhaseStim(uexs,R,tstep,xstore,dt,epsStim,std(us(:,R.IntP.phaseStim.sensStm(2))));
+                 [uexs,R] = zeroCrossingPhaseStim(uexs,R,tstep,xstore,dt,std(us(:,R.IntP.phaseStim.sensStm(2))));
             end
         end
         

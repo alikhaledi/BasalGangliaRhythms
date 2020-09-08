@@ -10,14 +10,14 @@ warning('Loading Preloaded model, cant change simtime or model choice!!!')
 
 %% Define stimulation conditions
 % Stimualating M2
-% senssite = 4; % STN
-% stimsite = 1; % M2
-% stim_sens = 'stimM2_sensSTN';
+senssite = 4; % STN
+stimsite = 1; % M2
+stim_sens = 'stimM2_sensSTN';
 %
 % Stimulating  STN
-senssite = 1; % M2
-stimsite = 4; % STN
-stim_sens = 'stimSTN_sensM2';
+% senssite = 1; % M2
+% stimsite = 4; % STN
+% stim_sens = 'stimSTN_sensM2';
 
 R.IntP.phaseStim.sensStm = [senssite stimsite];
 
@@ -26,7 +26,7 @@ P = permMod{1}.par_rep{1};
 R.obs.csd.df = 0.5;
 R = setSimTime(R,simtime);
 R.obs.trans.norm = 0; % No normalization of spectra
-R.obs.brn = R.obs.brn.*3;
+R.obs.brn = R.obs.brn;
 R.IntP.intFx = @spm_fx_compile_120319_stim;
 phaseShift = linspace(0,2.*pi,13); %13% List of phases to be tested
 phaseShift = phaseShift(1:12); %12
@@ -35,10 +35,9 @@ tplot = 0;
 rng(4342142)
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
-fsamp = 1/R.IntP.dt;
 
 if fresh
-    for ctype = 1;%:2
+    for ctype = 2
         %% CLEAR
         intpow = [];
         maxpow = [];
@@ -70,12 +69,10 @@ if fresh
         
         load([rootan '\BB_'  R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_bKF.mat'],'ck_1')
         
-        NcS = ck_1(CON,1:2:end);
-        mod = find(NcS==1);
-        
+        NcS = ck_1(CON,1:2:end);       
         NcS = [1 ck_1(CON,:)];
         
-        for cond = 1; %:numel(NcS)
+        for cond = 1:numel(NcS)
             
             % Get Base Parameters
             Pbase = P;
@@ -93,14 +90,8 @@ if fresh
                 uc_ip = {}; feat_sim = {}; xsim_ip = {};
                 uc_ip{1} = uc;
                 
-                %% Simulate Base Model
-                R.IntP.phaseStim.switch = 0 ;                 R.IntP.phaseStim.filtflag = 0;
-
-                [~,~,feat_sim{1},~,xsim_ip{1}] = computeSimData(R,m,uc_ip{1},Pbase,0);
-                
-                %% Resimulate with Phase-Locked Input
-                R.IntP.phaseStim.switch = 1;
-                %                 R.IntP.phaseStim.stimfreq = 18;
+                %% Setup stim parameters
+                R.IntP.phaseStim.filtflag = 0;
                 R.IntP.phaseStim.buff = 3; % This is the buffer used to compute the current phase
                 R.IntP.phaseStim.minBS =  ((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
                 R.IntP.phaseStim.trackdelay = 0.25; % this is the delay to take (as the end of the hilbert in unstable
@@ -113,7 +104,19 @@ if fresh
                     'SampleRate', 1/R.IntP.dt);
                 R.IntP.phaseStim.phaseshift = phaseShift(p);
                 R.IntP.phaseStim.filtflag = 0;
-                R.IntP.phaseStim.epsthresh = 25;
+                R.IntP.phaseStim.epsthresh = 75;
+                R.IntP.phaseStim.eps = 0;
+                
+                %% Simulate Base Model
+                R.IntP.phaseStim.switch = 0 ;
+                [~,~,feat_sim{1},xsim_gl,xsim_ip{1}] = computeSimData(R,m,uc_ip{1},Pbase,0);
+                
+                %% Work out the threshold
+                [~,R] = zeroCrossingPhaseStim([],R,[],xsim_gl{1},R.IntP.dt,0);
+                
+                %% Resimulate with Phase-Locked Input
+                R.IntP.phaseStim.switch = 1;
+
                 % Simulate with Stimulation
                 [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{1},Pbase,0);
                 
@@ -161,7 +164,7 @@ if fresh
                     intpow(:,3,stm,p,cond) = sum(spec(R.frqz>14 & R.frqz<=30,:));
                     maxpow(:,3,stm,p,cond) = max(spec(R.frqz>14 & R.frqz<=30,:));
                     
-                    if numel(BB.segAmp)>2
+                    if numel(BB.segAmp{2})>2
                         burRate(:,stm,p,cond) = percentageChange(BB.segRate,stm);
                         burdur(:,stm,p,cond) = [nanmedian(percentageChange(BB.segDur,stm)) npCI(percentageChange(BB.segDur,stm))];
                         burAmp(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmp,stm)) npCI(percentageChange(BB.segAmp,stm))];

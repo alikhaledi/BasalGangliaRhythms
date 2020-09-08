@@ -76,7 +76,7 @@ fresh = 1;
 BAA_sim_fakeCloseLoop_StateDependency_v2(R,modID,simlength,fresh);
 
 %% Figure (8): Plot State dependency of ARCs
-ClosedLoop_StateDependence_Plot
+ClosedLoop_StateDependence_PLot
 
 
 
