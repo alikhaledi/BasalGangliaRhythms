@@ -9,29 +9,42 @@ cmap1 = brewermap(40,'Reds');
 % cmap1(22,:) = [0 0 0];
 cmap2 = brewermap(40,'Blues');
 % cmap2(28,:) = [0 0 0];
-ip = 0;
 for CON = [1 3]
-    ip = ip + 1;
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
     figure(1)
-    subplot(2,2,ip)
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,4,1])
+    if CON == 1
+        subplot(4,3,1)
+    elseif CON == 3
+        subplot(4,3,7)
+    end
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[1,1,1])
     title(R.CONnames{CON})
 %     ylim([1e-16 1e-13])
     set(gca, 'YScale', 'log', 'XScale', 'log')
     
-    figure(2)
-    subplot(2,2,ip)
+    if CON == 1
+        subplot(4,3,2)
+    elseif CON == 3
+        subplot(4,3,8)
+    end
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,4,1])
+    title(R.CONnames{CON})
+%     ylim([1e-16 1e-13])
+    set(gca, 'YScale', 'log', 'XScale', 'log')
+
+    if CON == 1
+        subplot(4,3,3)
+    elseif CON == 3
+        subplot(4,3,9)
+    end
     plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,1,4])
     title(R.CONnames{CON})
 %         ylim([1e-16 1e-11])
     
 end
 
-ip = 0;
 for CON = [1 3]
-        ip = ip + 1;
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_xsim_F1.mat'])
@@ -43,12 +56,12 @@ for CON = [1 3]
     % Scale bpow to 0
     [a zind] = min(abs(ck_1-1)); % base model
     bpowr = 100*(bpowr-bpowr(zind))/bpowr(zind);
-    bpowr_br = 100*(bpowr_br-bpowr_br(zind))/bpowr_br(zind);
-
-    % Remove non-physiological
+    bpowr_br = 100*(bpowr_br-bpowr_br(zind))/bpowr_br(zind); % this is low beta band (not used)
+    bpowrCtx = 100*(bpowrCtx-bpowrCtx(zind))/bpowrCtx(zind);
+    
     powInds = find(bpowr>500);
-    fpow(powInds) = nan(1,numel(powInds));
-    bpowr(powInds) = nan(1,numel(powInds));
+    fpowCtx(powInds) = nan(1,numel(powInds));
+    bpowrCtx(powInds) = nan(1,numel(powInds));
     fcoh(powInds) = nan(1,numel(powInds));
     bcohr(powInds) = nan(1,numel(powInds));
     
@@ -64,12 +77,42 @@ for CON = [1 3]
 %     betaKrange(:,CON) = [b1 b2 b3];
 %     betaEquiv(:,CON) = bpowr_br([b1 b2 b3]);
 %     kEquiv(:,CON) = ck_1([b1 b2 b3]);
+Krange{CON} = ck_1(bpowr<500);
 
     bsel = 1:5:35;
-    Krange{CON} = ck_1(bpowr<500);
     
     figure(1)
-    subplot(2,2,ip+2)
+    % M2 Power Track
+    if CON == 1
+        subplot(4,3,4)
+    elseif CON == 3
+        subplot(4,3,10)
+    end
+    br = plot(ck_1(1,:)*100,(bpowr(:)),'k-');
+    hold on
+    Sr = scatter(ck_1(1,bsel)*100,(bpowrCtx(bsel)),50,cmap1(bsel,:),'filled');
+    ylabel('log % of STN Fitted Power')
+    grid on; set(gca,"XScale",'log')
+    
+    yyaxis right
+    br = plot(ck_1(1,:)*100,(fpow(:)),':');
+    hold on
+    Sr = scatter(ck_1(1,bsel)*100,(fpowCtx(bsel)),50,cmap2(bsel,:),'filled');
+    Sr.Marker = 'diamond';
+    ylabel('Peak Frequency (Hz)')
+    xlabel('log_{10} % Connection Strength')
+    title(R.CONnames{CON})
+    xlim([10 1000]); 
+    ylim([12 25])
+    yyaxis left
+    ylim([-100 200])
+    
+    % STN Power
+    if CON == 1
+        subplot(4,3,5)
+    elseif CON == 3
+        subplot(4,3,11)
+    end
     br = plot(ck_1(1,:)*100,(bpowr(:)),'k-');
     hold on
     Sr = scatter(ck_1(1,bsel)*100,(bpowr(bsel)),50,cmap1(bsel,:),'filled');
@@ -89,8 +132,12 @@ for CON = [1 3]
     yyaxis left
     ylim([-100 200])
     
-    figure(2)
-    subplot(2,2,ip+2)
+    % STN/M2 Coherence
+    if CON == 1
+        subplot(4,3,6)
+    elseif CON == 3
+        subplot(4,3,12)
+    end
     br = plot(ck_1(1,:)*100,bcohr(:),'k-');
     hold on
     Sr = scatter(ck_1(1,bsel)*100,bcohr(bsel),50,cmap1(bsel,:),'filled');
@@ -112,8 +159,8 @@ for CON = [1 3]
     
     
 end
-legend(Sr,ck_1(1,:)*100)
+% legend(Sr,ck_1(1,:)*100)
 R.Krange = Krange;
 save([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_KRange.mat'],'Krange')
 % R.betaKrange(3,3) = 19;
-set(gcf,'Position',[600         374        760         604])
+set(gcf,'Position',[488.0000 -167.0000  954.6000  929.0000])

@@ -39,14 +39,16 @@ BAA_sim_lesionExp_cortical_rhythms(R,modID,simlength,fresh)
 
 %% Perform sweep over connections and simulate
 BAA_sim_ConnectionSweep_v2(R,modID,100,2)
+
+%% Figure (3): Sweep over connections and plot spectra
+R = plotSweepSpectraWrapper(R); % This doesnt just plot but also works out the vector Krange for spread of viable connections
+% plotSweepSpectraWrapper_M2_SI(R); % Plot Cortical Spectra
+
 %%
 BAA_sim_ConnectionSweep_dualpaths(R,modID,100,2)
 plotSweepSpectraWrapper_dualpaths(R)
 
 
-%% Figure (3): Sweep over connections and plot spectra
-R = plotSweepSpectraWrapper(R); % This doesnt just plot but also works out the vector Krange for spread of viable connections
-plotSweepSpectraWrapper_M2_SI(R); % Plot Cortical Spectra
 
 %% Figure (4): Analysis of competing loops
 [R,m,permMod,xsimMod] = getSimModelData_Draw(R,modID,32,0,500);
