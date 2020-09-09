@@ -13,7 +13,7 @@ warning('Loading Preloaded model, cant change simtime or model choice!!!')
 senssite = 4; % STN
 stimsite = 1; % M2
 stim_sens = 'stimM2_sensSTN';
-%
+
 % Stimulating  STN
 % senssite = 1; % M2
 % stimsite = 4; % STN
@@ -95,8 +95,8 @@ if fresh
                 R.IntP.phaseStim.buff = 3; % This is the buffer used to compute the current phase
                 R.IntP.phaseStim.minBS =  ((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
                 R.IntP.phaseStim.trackdelay = 0.25; % this is the delay to take (as the end of the hilbert in unstable
-                R.IntP.phaseStim.stimlength = 0.3; % 300ms stim delivery
-                R.IntP.phaseStim.stimAmp = 1/4; % times the variance of the normal input
+                R.IntP.phaseStim.stimlength = 0.15; % 300ms stim delivery
+                R.IntP.phaseStim.stimAmp = 1/2; % times the variance of the normal input; % Might need higher for STN stim
                 R.IntP.phaseStim.regleng = 3/18; % 500ms regression only
                 %                 R.IntP.phaseStim.thresh = BB.epsAmp;
                 R.IntP.phaseStim.bpfilt = designfilt('bandpassiir', 'FilterOrder', 20,...
@@ -112,7 +112,7 @@ if fresh
                 [~,~,feat_sim{1},xsim_gl,xsim_ip{1}] = computeSimData(R,m,uc_ip{1},Pbase,0);
                 
                 %% Work out the threshold
-                [~,R] = zeroCrossingPhaseStim([],R,[],xsim_gl{1},R.IntP.dt,0);
+                [~,R] = zeroCrossingPhaseStim([],R,[],xsim_gl{1},R.IntP.dt);
                 
                 %% Resimulate with Phase-Locked Input
                 R.IntP.phaseStim.switch = 1;
@@ -224,7 +224,7 @@ load([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save
 % cmap = cmap(4:end,:);
 cmap = brewermap(12,'Set1');
 baseCon = find(NcS==1,1);
-
+figure(1)
 phaseShift = rad2deg(phaseShift);
 for C =1:3
     if C == 1
@@ -281,6 +281,25 @@ for C =1:3
     ylim([-50 150]);
 end
 set(gcf,'Position',[ 711   418   957   560])
+
+figure(2)
+titnames = {'Unstimulated','Max. Suppressing','Max. Amplifying'};
+psel = [1 3; 2 7; 2 1];
+for i = 1:3
+    subplot(1,4,i)
+        A = burRP{2,psel(i,1),psel(i,2),1};
+    p = polarhistogram(A,-pi:pi/8:pi);
+    if i == 1
+     p.FaceColor = [0 0 0];
+    else
+    p.FaceColor = cmap(psel(i,2),:);
+    end
+    plv(i) = abs(sum(exp(sqrt(-1)*A)))./numel(A);
+    title([titnames{i} sprintf('\n PLV = %0.3f',plv(i))] )
+end
+    subplot(1,4,4)
+bar(plv)
+
 
 figure(1)
 ip = 0;

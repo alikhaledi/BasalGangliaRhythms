@@ -33,7 +33,7 @@ for condsel = 1:numel(R.condnames)
     fx{2} = @spm_fx_cmc_local;                                    % CMC model
     fx{3} = @spm_fx_bgc;                                    % basal ganglia circuit
     %     fx{4} = @spm_fx_mmc;                                    % motor micro circuit (SPM version)
-    
+
     fx{4} = @ABC_fx_bgc_mmc;                                    % motor micro circuit
     fx{5} = @ABC_fx_bgc_str;
     fx{6} = @ABC_fx_bgc_gpe;
@@ -44,33 +44,33 @@ for condsel = 1:numel(R.condnames)
     %--------------------------------------------------------------------------
     efferent(1,:) = [9 9 9 9];               % sources of ERP connections
     afferent(1,:) = [4 8 5 8];               % targets of ERP connections
-    
+
     efferent(2,:) = [3 3 7 7];               % sources of CMC connections
     afferent(2,:) = [2 8 4 6];               % targets of CMC connections
-    
+
     efferent(3,:) = [9 9 9 9];               % sources of BGC connections (thalamus)
     afferent(3,:) = [2 6 2 6];               % targets of BGC connections (striatum & STN)
-    
+
     efferent(4,:) = [3 3 6 7];               % ORIG sources of MMC connections
     afferent(4,:) = [2 4 8 0];               % targets of MMC connections
     %     efferent(4,:) = [7 7 7 7];               % sources of MMC connections
     %     afferent(4,:) = [8 8 8 8];                  % forward deep/middle; back deep/superficial
     efferent(5,:) = [1 1 1 1];               % sources of STR connections
     afferent(5,:) = [2 2 2 2];               % targets of STR connections
-    
+
     efferent(6,:) = [1 1 1 1];               % sources of GPE connections
     afferent(6,:) = [2 2 2 2];               % targets of GPE connections
-    
+
     efferent(7,:) = [1 1 1 1];               % sources of STN connections
     afferent(7,:) = [2 2 2 2];               % targets of STN connections
-    
+
     efferent(8,:) = [1 1 1 1];               % sources of GPI connections
     afferent(8,:) = [2 2 2 2];               % targets of GPI connections
-    
+
     efferent(9,:) = [1 1 1 1];               % sources of THAL connections
     afferent(9,:) = [2 2 2 2];               % targets of THAL connections
-    
-    
+
+
     % scaling of afferent extrinsic connectivity (Hz)
     %--------------------------------------------------------------------------
     E(1,:) = [1 0 1 0]*200;                    % ERP connections
@@ -84,13 +84,13 @@ for condsel = 1:numel(R.condnames)
     % E(7,:) = [ 1  1 -.1  -1]*100000;             % STN connections
     % E(8,:) = [.5 .5 -.5 -.5]*100000;               % GPI connections
     % E(9,:) = [.5 .5 -.5 -.5]*100000;               % THAL connections
-    
+
     E(5,:) = [.2 .2 -.2 -.2]*8000;             % STR connections
     E(6,:) = [.2 .2 -.2 -.2]*10000;             % GPE connections
     E(7,:) = [.2 .2 -.2 -.2]*10000;             % STN connections
     E(8,:) = [.2 .2 -.2 -.2]*8000;             % GPI connections
     E(9,:) = [.2 .2 -.2 -.2]*5000;  %500       % THAL connections
-    
+
     % get the neural mass models {'ERP','CMC'}
     %--------------------------------------------------------------------------
     n     = m.m;
@@ -116,35 +116,35 @@ for condsel = 1:numel(R.condnames)
             nmm(i) = 9;
         end
     end
-    
+
     %% Pre-integration extrinsic connection parameters
-    
+
     % Compute value of delays from lognormal mean
     D = zeros(m.m);
     D(p.D>-30) = 4/1000; % set all delay priors to 4ms.
-    
+
     D(2,1) = 3/1000;   % M1 to STR (Jaeger and Kita, 2011)
     D(4,1) = 3/1000;  % M1 to STN (Jaeger and Kita, 2011)
-    
+
     D(3,2) = 7/1000;   % STR to GPe (Kita and Kitai 1991)
     D(5,2) = 12/1000;  % STR to GPi (Kita and Kitai 1991)
-    
+
     D(4,3) = 1/1000;    % GPe to STN (Jaeger and Kita, 2011)
     D(5,3) = 1/1000;    % GPe to GPi (Jaeger and Kita, 2011)
-    
+
     D(3,4) = 3/1000;    % STN to GPe (Kita and Kitai 1991)
     D(5,4) = 3/1000;    % STN to GPi (Kita and Kitai 1991)
-    
+
     D(6,5) = 3/1000;    % GPi to Thal (Stoelzel J Neurosci. 2017)
-    
+
     D(1,6) = 3/1000;   % Thal to M1 (Lumer, Edelman, Tononi; 1997)
     D(1,6) = 8/1000;   % M1 to Thal (Lumer, Edelman, Tononi; 1997) - %typo means prior is actually default (4ms, reported in paper)
-    
-    
+
+
     D = D(1:m.m,1:m.m);
     D = ceil(D.*exp(p.D).*(1/R.IntP.dt)); % As expectation of priors and convert units to steps
     D(D<((1e-3)/R.IntP.dt)&D>0) = floor((2e-3)/R.IntP.dt); % Minimum 1ms
-    
+
     if (R.IntP.buffer-max(max(D)))<=0
         R.IntP.buffer = max(max(D)) + 2;
         disp(['Delay is bigger than buffer, increasing buffer to: ' num2str(R.IntP.buffer)])
@@ -154,8 +154,8 @@ for condsel = 1:numel(R.condnames)
         wflag = 1;
         break
     end
-    
-    
+
+
     Ds = zeros(size(D));Dt = zeros(size(D));
     % Now find indices of inputs
     % Currently no seperation between inh and excitatory
@@ -169,7 +169,7 @@ for condsel = 1:numel(R.condnames)
             end
         end
     end
-    
+
     % Condition Dependent Modulation of Synaptic gains
     %-----------------------------------------
     for i = 1:m.m
@@ -179,7 +179,7 @@ for condsel = 1:numel(R.condnames)
             p.int{i}.T = p.int{i}.T + p.int{i}.BT;
         end
     end
-    
+
     % Rescale background Input
     for i = 1:m.m
         C    = exp(p.C(i));
@@ -199,7 +199,7 @@ for condsel = 1:numel(R.condnames)
         end
         %     A{alist(i,2)} = exp(p.A{i});
     end
-    
+
     % detect and reduce the strength of reciprocal (lateral) connections
     %--------------------------------------------------------------------------
     % TOL   = exp(2);
@@ -207,7 +207,7 @@ for condsel = 1:numel(R.condnames)
     %     L    = (A{i} > TOL) & (A{i}' > TOL);
     %     A{i} = A{i}./(1 + 4*L);
     % end
-    
+
     % and scale of extrinsic connectivity (Hz)
     %--------------------------------------------------------------------------
     for j = 1:n
@@ -217,7 +217,7 @@ for condsel = 1:numel(R.condnames)
             end
         end
     end
-    
+
     % synaptic activation function priors
     %--------------------------------------------------------------------------
     Rz_base     = 2/3;                      % gain of sigmoid activation function
@@ -225,7 +225,7 @@ for condsel = 1:numel(R.condnames)
     %% Precompute parameter expectations
     % Parameter Priors
     pQ = getModelPriors(m);
-    
+
     nbank = cell(1,n); qbank = cell(1,n);
     for i = 1:n
         N.x  = m.x{i};
@@ -238,7 +238,7 @@ for condsel = 1:numel(R.condnames)
         Q.C  = p.C(i,:);
         qbank{i} = Q;
     end
-    
+
     %% TIME INTEGRATION STARTS HERE ===========================================
     f = zeros(xinds(end),1); dt = R.IntP.dt;
     if iscell(x)
@@ -248,7 +248,7 @@ for condsel = 1:numel(R.condnames)
     end
     % pad out the rest of xstore with zeros
     %     xstore =    [xstore zeros(m.xinds(end),(R.IntP.nt+1)-size(xstore,2))];
-    
+
     %     xstore = [xstore nan(size(xstore,1),R.IntP.nt-R.IntP.buffer)];
     xint = zeros(m.n,1);
     TOL = exp(-4);
@@ -289,7 +289,7 @@ for condsel = 1:numel(R.condnames)
                  [uexs,R] = zeroCrossingPhaseStim(uexs,R,tstep,xstore,dt,std(us(:,R.IntP.phaseStim.sensStm(2))));
             end
         end
-        
+
         if any(xint>1e4) || any(isnan(xint))
             wflag= 1;
             break
@@ -310,4 +310,3 @@ if nargout>3
 end    % tvec = linspace(R.IntP.buffer*R.IntP.dt,R.IntP.nt*R.IntP.dt,R.IntP.nt);
 a = 1;
 end
-
