@@ -26,24 +26,24 @@ end
 
 %  ts = 0:dt:3;
 if all(BEnv(end-50-fix(R.IntP.phaseStim.minBS/dt):end-50) > R.IntP.phaseStim.eps)
-        if uexs(tstep,R.IntP.phaseStim.sensStm(2)) ==0
-            zci = find(diff(sign(BUB))>1,1,'last'); % location of last positive zero crossing
-            zstep = (length(BUB)-zci); % location relative to curren time step
-            
-            % zstep*dt is the current time of the sinusoid relative to t = 0;
-            cph = zstep*dt;
-            phiPred = 2*pi*18*(cph:dt:cph+R.IntP.phaseStim.stimlength)- pi/2;
-            
-            stim = sin(phiPred + R.IntP.phaseStim.phaseshift).*(R.IntP.phaseStim.stimAmp*uvar);
-            uexs(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = stim;
-            phi(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = phiPred;
-        else
-            uexs = uexs;
-        end
+    if uexs(tstep,R.IntP.phaseStim.sensStm(2)) ==0
+        zci = find(diff(sign(BUB))>1,1,'last'); % location of last positive zero crossing
+        zstep = (length(BUB)-zci); % location relative to curren time step
+        
+        % zstep*dt is the current time of the sinusoid relative to t = 0;
+        cph = zstep*dt;
+        phiPred = 2*pi*18*(cph:dt:cph+R.IntP.phaseStim.stimlength)- pi/2;
+        
+        stim = sin(phiPred + R.IntP.phaseStim.phaseshift).*(R.IntP.phaseStim.stimAmp*uvar);
+        uexs(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = stim;
+        phi(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = phiPred;
+    else
+        uexs = uexs;
+    end
 else
     uexs(tstep+1:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = 0;
     
-%         a = 1;
+    %         a = 1;
 end
 % Demo only
 % These are for demo only

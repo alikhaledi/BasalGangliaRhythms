@@ -10,14 +10,14 @@ warning('Loading Preloaded model, cant change simtime or model choice!!!')
 
 %% Define stimulation conditions
 % Stimualating M2
-senssite = 4; % STN
-stimsite = 1; % M2
-stim_sens = 'stimM2_sensSTN';
-
+% senssite = 4; % STN
+% stimsite = 1; % M2
+% stim_sens = 'stimM2_sensSTN';
+% 
 % Stimulating  STN
-% senssite = 1; % M2
-% stimsite = 4; % STN
-% stim_sens = 'stimSTN_sensM2';
+senssite = 1; % M2
+stimsite = 4; % STN
+stim_sens = 'stimSTN_sensM2';
 
 R.IntP.phaseStim.sensStm = [senssite stimsite];
 
@@ -84,7 +84,7 @@ if fresh
                 Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*NcS(cond)); %
             end
             %     intpow = []; maxpow = [];
-            for p = 1:numel(phaseShift) %[1 10] %
+            for p = 11:numel(phaseShift) %[1 10] %
                 
                 % Initialize variables
                 uc_ip = {}; feat_sim = {}; xsim_ip = {};
@@ -96,7 +96,7 @@ if fresh
                 R.IntP.phaseStim.minBS =  ((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
                 R.IntP.phaseStim.trackdelay = 0.25; % this is the delay to take (as the end of the hilbert in unstable
                 R.IntP.phaseStim.stimlength = 0.15; % 300ms stim delivery
-                R.IntP.phaseStim.stimAmp = 1/2; % times the variance of the normal input; % Might need higher for STN stim
+                R.IntP.phaseStim.stimAmp = 1; % times the variance of the normal input; % Might need higher for STN stim
                 R.IntP.phaseStim.regleng = 3/18; % 500ms regression only
                 %                 R.IntP.phaseStim.thresh = BB.epsAmp;
                 R.IntP.phaseStim.bpfilt = designfilt('bandpassiir', 'FilterOrder', 20,...
@@ -104,7 +104,7 @@ if fresh
                     'SampleRate', 1/R.IntP.dt);
                 R.IntP.phaseStim.phaseshift = phaseShift(p);
                 R.IntP.phaseStim.filtflag = 0;
-                R.IntP.phaseStim.epsthresh = 15;
+                R.IntP.phaseStim.epsthresh = 75;
                 R.IntP.phaseStim.eps = 0;
                 
                 %% Simulate Base Model
@@ -119,10 +119,10 @@ if fresh
 
                 % Simulate with Stimulation
                 [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{1},Pbase,0);
-                
+                tplot = 1;
                 if tplot == 1
                                     load([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
-                                    pU = uexs(1,round(R.obs.brn*(1/R.IntP.dt))+1:end);
+                                    pU = uexs(4,round(R.obs.brn*(1/R.IntP.dt))+1:end);
                     % Optional Plots for TimeSeries
                     figure(100)
                     a(1) = subplot(3,1,1);
