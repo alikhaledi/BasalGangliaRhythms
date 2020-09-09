@@ -104,7 +104,7 @@ if fresh
                     'SampleRate', 1/R.IntP.dt);
                 R.IntP.phaseStim.phaseshift = phaseShift(p);
                 R.IntP.phaseStim.filtflag = 0;
-                R.IntP.phaseStim.epsthresh = 75;
+                R.IntP.phaseStim.epsthresh = 15;
                 R.IntP.phaseStim.eps = 0;
                 
                 %% Simulate Base Model
@@ -121,10 +121,12 @@ if fresh
                 [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{1},Pbase,0);
                 
                 if tplot == 1
+                                    load([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
+                                    pU = uexs(1,round(R.obs.brn*(1/R.IntP.dt))+1:end);
                     % Optional Plots for TimeSeries
                     figure(100)
-                    %                     a(1) = subplot(3,1,1);
-                    %                     plot(Rout.IntP.tvec_obs,pU);
+                    a(1) = subplot(3,1,1);
+                    plot(Rout.IntP.tvec_obs,pU);
                     
                     a(2) = subplot(3,1,2);
                     plot(Rout.IntP.tvec_obs,xsim_ip{1}{1}(1,2:end));
@@ -139,7 +141,8 @@ if fresh
                     %                     xlim([24.75 25.75])
                     R.plot.outFeatFx({feat_sim{1}},{feat_sim{2}},R.data.feat_xscale,R,1,[])
                 end
-                
+                load([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
+
                 % Re-compute bursts (simulated data)
                 R.condname = {'1','2'};
                 [R,BB] = compute_BetaBursts_Simulated(R,{xsim_ip{1}{1} xsim_ip{2}{1}});
