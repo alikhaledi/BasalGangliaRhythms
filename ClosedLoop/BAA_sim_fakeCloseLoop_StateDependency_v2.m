@@ -53,12 +53,7 @@ if fresh
         ampStore = [];
         ppcStore = [];
         siStore = [];
-        
-        % temp!
-        %         load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
-        %             'durStore','ampStore','ppcStore','siStore',...
-        %             'burInt','phaseShift','conStren')
-        
+                
         rootan = [Rorg.rootn 'data\rat_InDirect_ModelComp\ConnectionSweep'];
         
         if ctype == 1 % M2 STN
@@ -84,7 +79,7 @@ if fresh
                 Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*NcS(cond)); %
             end
             %     intpow = []; maxpow = [];
-            for p = 11:numel(phaseShift) %[1 10] %
+            for p = 4:numel(phaseShift) %[1 10] %
                 
                 % Initialize variables
                 uc_ip = {}; feat_sim = {}; xsim_ip = {};
@@ -93,10 +88,11 @@ if fresh
                 %% Setup stim parameters
                 R.IntP.phaseStim.filtflag = 0;
                 R.IntP.phaseStim.buff = 3; % This is the buffer used to compute the current phase
-                R.IntP.phaseStim.minBS =  ((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
+                R.IntP.phaseStim.minBS =  0; %((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
                 R.IntP.phaseStim.trackdelay = 0.25; % this is the delay to take (as the end of the hilbert in unstable
                 R.IntP.phaseStim.stimlength = 0.15; % 300ms stim delivery
-                R.IntP.phaseStim.stimAmp = 1; % times the variance of the normal input; % Might need higher for STN stim
+                R.IntP.phaseStim.upperiod = (25/1000)*(1./R.IntP.dt); % 25ms update period
+                R.IntP.phaseStim.stimAmp = 2; % times the variance of the normal input; % Might need higher for STN stim
                 R.IntP.phaseStim.regleng = 3/18; % 500ms regression only
                 %                 R.IntP.phaseStim.thresh = BB.epsAmp;
                 R.IntP.phaseStim.bpfilt = designfilt('bandpassiir', 'FilterOrder', 20,...
@@ -125,6 +121,7 @@ if fresh
                                     pU = uexs(4,round(R.obs.brn*(1/R.IntP.dt))+1:end);
                     % Optional Plots for TimeSeries
                     figure(100)
+                    clf
                     a(1) = subplot(3,1,1);
                     plot(Rout.IntP.tvec_obs,pU);
                     

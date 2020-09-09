@@ -6,12 +6,12 @@ function [R] = BAA_sim_fakeCloseLoop_StateDependency(Rorg,modID,simtime,fresh)
 stimsite = 1; % M2
 senssite = 4; % STN
 stim_sens = 'stimM2_sensSTN';
-% 
+%
 % Stimulating  STN
 % stimsite = 4; % STN
 % senssite = 1; % M2
 % stim_sens = 'stimSTN_sensM2'
-% 
+%
 
 
 % or load from preload
@@ -38,50 +38,42 @@ if fresh
         %% CLEAR
         intpow = [];
         maxpow = [];
-        
+
         burRate = [];
         burdur = [];
         burAmp = [];
         burAmpMid = [];
         burPPC = [];
         burInt = [];
-        
+
         durStore = [];
         ampStore = [];
         ppcStore = [];
         siStore = [];
-        
+
         % temp!
-<<<<<<< Updated upstream
-        %         load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
-        %             'durStore','ampStore','ppcStore','siStore',...
-        %             'burInt','phaseShift','conStren')
-=======
-        load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
-            'durStore','ampStore','ppcStore','siStore',...
-            'burInt','phaseShift','conStren')
->>>>>>> Stashed changes
-        
+
+
         rootan = [Rorg.rootn 'data\rat_InDirect_ModelComp\ConnectionSweep'];
-        
+
         if ctype == 1 % M2 STN
             CON = 1;
         elseif ctype == 2 % GPe STN
             CON = 3;
         end
-        
+
         load([rootan '\BB_'  R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_bKF.mat'],'ck_1')
-        
+
         NcS = ck_1(CON,1:2:end);
         mod = find(NcS==1);
-        
+
         NcS = [1 ck_1(CON,:)];
-        
+
         for cond = 1:numel(NcS)
-            
+
             % Get Base Parameters
             Pbase = P;
-            
+
             % Modulate connectivity (state dependency)
             if ctype ==1
                 Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*NcS(cond)); %
@@ -90,14 +82,14 @@ if fresh
             end
             %     intpow = []; maxpow = [];
             for p = 1:numel(phaseShift) %[1 10] %
-                
+
                 % Initialize variables
                 uc_ip = {}; feat_sim = {}; xsim_ip = {};
                 uc_ip{1} = uc;
-                
+
                 %% Simulate Base Model
                 [~,~,feat_sim{1},~,xsim_ip{1}] = computeSimData(R,m,uc_ip{1},Pbase,0);
-                
+
                 % Now find bursts that will be used to parameterize
                 % stimulation
                 R.condname = {'1'};
@@ -107,22 +99,22 @@ if fresh
                     R.BB.threshold_type = 'baseModelThresh';
                     RBB = compute_BurstThreshold(R,BB,1,0);
                 end
-                
+
                 BB.epsAmpfull = RBB.epsAmpfull;
                 BB.epsAmp = RBB.epsAmp;
                 BB.epsPLV = RBB.epsPLV;
-                
+
                 R.BB.minBBlength = 1; %o1 tl 1.5; %  Minimum burst period- cycles
                 BB.plot.durlogflag = 0;
                 R.BB.pairInd = [1 senssite]; % Use cortical burst sensing
                 BB = defineBetaEvents(R,BB);
-                
-                
+
+
                 %% Resimulate with Phase-Locked Input
                 % Now decide the timing of the intervention!
                 pulseWid = (0.3.*fsamp);
                 pulseDelay = (0.*fsamp);
-                
+
                 % Setup the Stimulation Input
                 pU = zeros(size(R.IntP.tvec));
                 pulseStart = [];
@@ -139,21 +131,21 @@ if fresh
                 uc_ip{2} =  uc_ip{1};
                 uc_ip{2}{100} = zeros(size(uc_ip{1}{1}));
                 uc_ip{2}{100}(:,stimsite) =  pU'; % Give it a cortical pulse
-                
+
                 % Simulate with Stimulation
                 [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{2},Pbase,0);
-                
+
                 if tplot == 1
                     % Optional Plots for TimeSeries
                     figure(100)
                     a(1) = subplot(3,1,1);
                     plot(Rout.IntP.tvec_obs,pU);
-                    
+
                     a(2) = subplot(3,1,2);
                     plot(Rout.IntP.tvec_obs,xsim_ip{1}{1}(1,2:end));
                     hold on
                     plot(Rout.IntP.tvec_obs,xsim_ip{2}{1}(1,2:end));
-                    
+
                     a(3) = subplot(3,1,3);
                     plot(Rout.IntP.tvec_obs,xsim_ip{1}{1}(4,2:end)+5e-6);
                     hold on
@@ -162,25 +154,25 @@ if fresh
                     %                     xlim([24.75 25.75])
                     R.plot.outFeatFx({feat_sim{1}},{feat_sim{2}},R.data.feat_xscale,R,1,[])
                 end
-                
+
                 % Re-compute bursts (simulated data)
                 R.condname = {'1','2'};
                 [R,BB] = compute_BetaBursts_Simulated(R,{xsim_ip{1}{1} xsim_ip{2}{1}});
                 %                 R.BB.thresh_prctile = 75;% o85; tl 80
                 %                 R.BB.threshold_type = 'baseModelThresh';
                 %                 BB = compute_BurstThreshold(R,BB,1,0);
-                
+
                 BB.epsAmpfull = RBB.epsAmpfull;
                 BB.epsAmp = RBB.epsAmp;
                 BB.epsPLV = RBB.epsPLV;
-                
+
                 R.BB.minBBlength = 1; %o1 tl 1.5; %  Minimum burst period- cycles
                 BB.plot.durlogflag = 0;
                 R.BB.pairInd = [1 4]; % KEEP LOOKING AT STN BURSTS!
                 BB = defineBetaEvents(R,BB);
-                
+
                 %% Now get statistics of the simulations (spectra/burst features)
-                
+
                 for stm = 1:2
                     spec = [squeeze(feat_sim{stm}(1,1,1,1,:)) squeeze(feat_sim{stm}(1,4,4,1,:)) squeeze(feat_sim{stm}(1,4,1,4,:))];
                     powspec_save(:,:,stm,p,cond) = spec;
@@ -190,7 +182,7 @@ if fresh
                     maxpow(:,2,stm,p,cond) = max(spec(R.frqz>21 & R.frqz<=30,:));
                     intpow(:,3,stm,p,cond) = sum(spec(R.frqz>14 & R.frqz<=30,:));
                     maxpow(:,3,stm,p,cond) = max(spec(R.frqz>14 & R.frqz<=30,:));
-                    
+
 <<<<<<< Updated upstream
                     if numel(BB.segAmp)>2
                         burRate(:,stm,p,cond) = percentageChange(BB.segRate,stm);
@@ -199,7 +191,7 @@ if fresh
                         burAmpMid(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmpMid,stm)) npCI(percentageChange(BB.segAmpMid,stm))];
                         burPPC(:,stm,p,cond) = [nanmedian(percentageChange(BB.segPLV,stm)) npCI(percentageChange(BB.segPLV,stm))];
                         burInt(:,stm,p,cond) = [nanmedian(percentageChange(BB.segInterval,stm)) npCI(percentageChange(BB.segInterval,stm))];
-                        
+
                         durStore{stm,p} = BB.segDur{stm};
                         ampStore{stm,p} = BB.segAmp{stm};
                         ppcStore{stm,p} = BB.segPLV{stm};
@@ -212,13 +204,13 @@ if fresh
                         burAmpMid(:,stm,p,cond) = nan;
                         burPPC(:,stm,p,cond) =nan;
                         burInt(:,stm,p,cond) = nan;
-                        
+
                         durStore{stm,p} = nan;
                         ampStore{stm,p} = nan;
                         ppcStore{stm,p} = nan;
                         siStore{stm,p} =nan;
                         %                     trajStore{stm,p} = BB.segTraj{stm};
-                        
+
                     end
 =======
                     burRate(:,stm,p,cond) = percentageChange(BB.segRate,stm);
@@ -226,7 +218,7 @@ if fresh
                     burAmp(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmp,stm)) npCI(percentageChange(BB.segAmp,stm))];
                     burPPC(:,stm,p,cond) = [nanmedian(percentageChange(BB.segPLV,stm)) npCI(percentageChange(BB.segPLV,stm))];
                     burInt(:,stm,p,cond) = [nanmedian(percentageChange(BB.segInterval,stm)) npCI(percentageChange(BB.segInterval,stm))];
-                    
+
                     durStore{stm,p} = BB.segDur{stm};
                     ampStore{stm,p} = BB.segAmp{stm};
                     ppcStore{stm,p} = BB.segPLV{stm};
@@ -234,9 +226,9 @@ if fresh
                     trajStore{stm,p} = BB.segTraj{stm};
 >>>>>>> Stashed changes
                 end
-                
-                
-                
+
+
+
                 disp([p,cond,ctype])
             end % Phase shift loop
         end % Connection shift loop
@@ -250,7 +242,7 @@ if fresh
             'burInt','phaseShift','conStren','trajStore')
 >>>>>>> Stashed changes
     end
-    
+
 end
 
 %% Now Plot Results
@@ -291,13 +283,13 @@ for C =1:3
         hold on
     end
     plot(R.frqz,squeeze(powspec_save(:,C,1,i,baseCon)),'color',[0 0 0],'LineWidth',2,'LineStyle','--');
-    
+
     xlim([8 34])
     legend(a,sprintfc('%.1f rad.',phaseShift(phsel)))
     xlabel('Frequency (Hz)'); ylabel([titbit])
     title([titbit])
     grid on; axis square
-    
+
     % ARCs
     subplot(3,3,C+3) % Steady State Stats
     % Beta 1
@@ -313,15 +305,15 @@ for C =1:3
     hold on
     s(2) = scatter(phaseShift(phsel),X(phsel),75,cmap(phsel,:),'filled');
     s(2).Marker = 'square';
-    
+
     grid on;axis square
-    
+
     xlabel('Stimulation Phase (radians)'); ylabel('Percentage Change')
     %     legend(p,{'\beta_1 (14-21 Hz) Power','\beta_2 (21-30 Hz) Power'})
     title([titbit ' Response Curve'])
     a = gca;
     a.XTick = rad2deg(([0 pi/2 pi 3*pi/2 2*pi]));
-    
+
     xlim([0 360])
     ylim([-50 150]);
 end
@@ -378,7 +370,7 @@ for  i = [2 3 4]
     %
     Z = X(:,1);
     X = X(:,2);
-    
+
 <<<<<<< Updated upstream
     subplot(3,3,6+ip)
     [l b] = boundedline((phaseShift),X,Y(:,2)./2);
@@ -393,17 +385,17 @@ for  i = [2 3 4]
 >>>>>>> Stashed changes
     hold on
     s = scatter((phaseShift(phsel)),X(phsel),75,cmap(phsel,:),'filled');
-    
+
     plot(phaseShift,Z,'LineWidth',1,'Color','k','LineStyle','-'); % Unstimulated median
     plot(phaseShift,Z-Y(:,1)./2,'LineWidth',1,'Color','k','LineStyle','--'); % SEM
     plot(phaseShift,Z+Y(:,1)./2,'LineWidth',1,'Color','k','LineStyle','--')
-    
+
     xlabel('Stimulation Phase')
     ylabel(ylab)
     title(titname)
     a = gca;
     a.XTick = rad2deg([0 pi/2 pi 3*pi/2 2*pi]);
-    
+
     xlim([0 360])
     grid on; axis square
     ylim(rlz);
