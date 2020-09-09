@@ -52,9 +52,15 @@ if fresh
         siStore = [];
         
         % temp!
+<<<<<<< Updated upstream
         %         load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
         %             'durStore','ampStore','ppcStore','siStore',...
         %             'burInt','phaseShift','conStren')
+=======
+        load([R.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '.mat'],'powspec_save','intpow','maxpow','burRate','burdur','burAmp','burPPC',...
+            'durStore','ampStore','ppcStore','siStore',...
+            'burInt','phaseShift','conStren')
+>>>>>>> Stashed changes
         
         rootan = [Rorg.rootn 'data\rat_InDirect_ModelComp\ConnectionSweep'];
         
@@ -185,6 +191,7 @@ if fresh
                     intpow(:,3,stm,p,cond) = sum(spec(R.frqz>14 & R.frqz<=30,:));
                     maxpow(:,3,stm,p,cond) = max(spec(R.frqz>14 & R.frqz<=30,:));
                     
+<<<<<<< Updated upstream
                     if numel(BB.segAmp)>2
                         burRate(:,stm,p,cond) = percentageChange(BB.segRate,stm);
                         burdur(:,stm,p,cond) = [nanmedian(percentageChange(BB.segDur,stm)) npCI(percentageChange(BB.segDur,stm))];
@@ -213,6 +220,19 @@ if fresh
                         %                     trajStore{stm,p} = BB.segTraj{stm};
                         
                     end
+=======
+                    burRate(:,stm,p,cond) = percentageChange(BB.segRate,stm);
+                    burdur(:,stm,p,cond) = [nanmedian(percentageChange(BB.segDur,stm)) npCI(percentageChange(BB.segDur,stm))];
+                    burAmp(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmp,stm)) npCI(percentageChange(BB.segAmp,stm))];
+                    burPPC(:,stm,p,cond) = [nanmedian(percentageChange(BB.segPLV,stm)) npCI(percentageChange(BB.segPLV,stm))];
+                    burInt(:,stm,p,cond) = [nanmedian(percentageChange(BB.segInterval,stm)) npCI(percentageChange(BB.segInterval,stm))];
+                    
+                    durStore{stm,p} = BB.segDur{stm};
+                    ampStore{stm,p} = BB.segAmp{stm};
+                    ppcStore{stm,p} = BB.segPLV{stm};
+                    siStore{stm,p} = BB.segInterval{stm};
+                    trajStore{stm,p} = BB.segTraj{stm};
+>>>>>>> Stashed changes
                 end
                 
                 
@@ -224,7 +244,11 @@ if fresh
         save([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '_' stim_sens '_thresholdFitted.mat'],'powspec_save',...
             'intpow','maxpow','burRate','burdur','burAmp','burAmpMid','burPPC',...
             'durStore','ampStore','ppcStore','siStore',...
+<<<<<<< Updated upstream
             'burInt','phaseShift','NcS'); %,'trajStore')
+=======
+            'burInt','phaseShift','conStren','trajStore')
+>>>>>>> Stashed changes
     end
     
 end
@@ -234,7 +258,11 @@ ctype = 1;
 load([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '_' stim_sens '_thresholdFitted.mat'],'powspec_save',...
     'intpow','maxpow','burRate','burdur','burAmp','burAmpMid','burPPC',...
     'durStore','ampStore','ppcStore','siStore',...
+<<<<<<< Updated upstream
     'burInt','phaseShift','NcS'); %,'trajStore')
+=======
+    'burInt','phaseShift','conStren','trajStore')
+>>>>>>> Stashed changes
 %% First round of plots
 % cmapDisc = brewermap(9,'Set1');
 % cmap = brewermap(numel(phaseShift)+4,'Reds');
@@ -311,11 +339,19 @@ for  i = [2 3 4]
         ls = '-';
         rlz = [-50 50]; %[1.25 1.75].*10^-6;
     elseif i == 2
+<<<<<<< Updated upstream
         X = squeeze(burInt(1,:,:,baseCon))';
         Y = squeeze(burInt(2,:,:,baseCon))';
         titname = 'Inter-Burst Interval';
         ylab = 'IBI (ms)';
         rlz = [-75 75]; %[1.25 1.75].*10^-6;
+=======
+        X = squeeze(burInt(1,:,:,1))';
+        Y = squeeze(burInt(2,:,:,1))';
+        titname = 'Inter-Burst Interval';
+        ylab = 'IBI (ms)';
+        rlz = [-50 50]; %[1.25 1.75].*10^-6;
+>>>>>>> Stashed changes
     elseif i == 3
         X = squeeze(burAmp(1,:,:,baseCon))';
         Y = squeeze(burAmp(2,:,:,baseCon))';
@@ -327,7 +363,11 @@ for  i = [2 3 4]
         Y = squeeze(burdur(2,:,:,baseCon))';
         titname = 'Burst Duration';
         ylab = 'Duration (ms)';
+<<<<<<< Updated upstream
         rlz = [-75 125]; %[1.25 1.75].*10^-6;
+=======
+        rlz = [-50 50]; %[1.25 1.75].*10^-6;
+>>>>>>> Stashed changes
     elseif i == 5
         X = squeeze(burPPC(1,:,:,baseCon))';
         Y = squeeze(burPPC(2,:,:,baseCon))';
@@ -339,12 +379,18 @@ for  i = [2 3 4]
     Z = X(:,1);
     X = X(:,2);
     
+<<<<<<< Updated upstream
     subplot(3,3,6+ip)
     [l b] = boundedline((phaseShift),X,Y(:,2)./2);
     l.Color = 'k';
     l.LineWidth = 1.5;
     b.FaceColor = 'k';
     b.FaceAlpha = 0.2;
+=======
+    subplot(2,3,i+1)
+    [l b] = boundedline((phaseShift),X,Y(:,2)./2);
+    b.FaceAlpha = 0.8;
+>>>>>>> Stashed changes
     hold on
     s = scatter((phaseShift(phsel)),X(phsel),75,cmap(phsel,:),'filled');
     
@@ -385,6 +431,7 @@ ppcSV = [nanmean(ppcStore{1,pSup}(3:end))-nanmean(ppcStore{2,pSup}(3:end)) diff(
 
 
 %% Trajectory Plots
+<<<<<<< Updated upstream
 % figure
 % subplot(1,3,1)
 % plot(nanmean(squeeze(trajStore{2,pAmp}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pSup}(4,:,:)),2))
@@ -396,6 +443,19 @@ ppcSV = [nanmean(ppcStore{1,pSup}(3:end))-nanmean(ppcStore{2,pSup}(3:end)) diff(
 % plot(nanmean(squeeze(trajStore{1,pSup}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pSup}(4,:,:)),2))
 % legend({'Base','Supressing'});
 %
+=======
+figure
+subplot(1,3,1)
+plot(nanmean(squeeze(trajStore{2,pAmp}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pSup}(4,:,:)),2))
+legend({'Amplifying','Supressing'});
+subplot(1,3,2)
+plot(nanmean(squeeze(trajStore{1,pAmp}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pAmp}(4,:,:)),2))
+legend({'Base','Amplifying'});
+subplot(1,3,3)
+plot(nanmean(squeeze(trajStore{1,pSup}(4,:,:)),2)); hold on; plot(nanmean(squeeze(trajStore{2,pSup}(4,:,:)),2))
+legend({'Base','Supressing'});
+
+>>>>>>> Stashed changes
 function ci = npCI(X)
 N = numel(X);
 lb = (N/2) - ((1.96*sqrt(N))/2);
