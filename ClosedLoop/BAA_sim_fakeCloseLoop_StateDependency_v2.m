@@ -10,14 +10,14 @@ warning('Loading Preloaded model, cant change simtime or model choice!!!')
 
 %% Define stimulation conditions
 % Stimualating M2
-% senssite = 4; % STN
-% stimsite = 1; % M2
-% stim_sens = 'stimM2_sensSTN';
-% 
+senssite = 4; % STN
+stimsite = 1; % M2
+stim_sens = 'stimM2_sensSTN';
+%
 % Stimulating  STN
-senssite = 1; % M2
-stimsite = 4; % STN
-stim_sens = 'stimSTN_sensM2';
+% senssite = 1; % M2
+% stimsite = 4; % STN
+% stim_sens = 'stimSTN_sensM2';
 
 R.IntP.phaseStim.sensStm = [senssite stimsite];
 
@@ -53,7 +53,7 @@ if fresh
         ampStore = [];
         ppcStore = [];
         siStore = [];
-                
+        
         rootan = [Rorg.rootn 'data\rat_InDirect_ModelComp\ConnectionSweep'];
         
         if ctype == 1 % M2 STN
@@ -64,7 +64,7 @@ if fresh
         
         load([rootan '\BB_'  R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_bKF.mat'],'ck_1')
         
-        NcS = ck_1(CON,1:2:end);       
+        NcS = ck_1(CON,1:2:end);
         NcS = [1 ck_1(CON,:)];
         
         for cond = 1; %:numel(NcS)
@@ -79,29 +79,21 @@ if fresh
                 Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*NcS(cond)); %
             end
             %     intpow = []; maxpow = [];
-            for p = 4:numel(phaseShift) %[1 10] %
+            for p = 1:numel(phaseShift) %[1 10] %
                 
                 % Initialize variables
                 uc_ip = {}; feat_sim = {}; xsim_ip = {};
                 uc_ip{1} = uc;
                 
-                %% Setup stim parameters
-                R.IntP.phaseStim.filtflag = 0;
-                R.IntP.phaseStim.buff = 3; % This is the buffer used to compute the current phase
-                R.IntP.phaseStim.minBS =  0; %((1/18)*(1./R.IntP.dt))/1000; % Minimum burst length
-                R.IntP.phaseStim.trackdelay = 0.25; % this is the delay to take (as the end of the hilbert in unstable
-                R.IntP.phaseStim.stimlength = 0.15; % 300ms stim delivery
-                R.IntP.phaseStim.upperiod = (25/1000)*(1./R.IntP.dt); % 25ms update period
-                R.IntP.phaseStim.stimAmp = 2; % times the variance of the normal input; % Might need higher for STN stim
-                R.IntP.phaseStim.regleng = 3/18; % 500ms regression only
-                %                 R.IntP.phaseStim.thresh = BB.epsAmp;
-                R.IntP.phaseStim.bpfilt = designfilt('bandpassiir', 'FilterOrder', 20,...
-                    'HalfPowerFrequency1', 15, 'HalfPowerFrequency2', 21,...
-                    'SampleRate', 1/R.IntP.dt);
+                %% Setup stim parameterss
+                switch stim_sens
+                    case 'stimM2_sensSTN'
+                R = typeIstimPars(R);
+                    case 'stimSTN_sensM2'
+                R = typeIIstimPars(R);
+                end
+                % Modulate the phase
                 R.IntP.phaseStim.phaseshift = phaseShift(p);
-                R.IntP.phaseStim.filtflag = 0;
-                R.IntP.phaseStim.epsthresh = 75;
-                R.IntP.phaseStim.eps = 0;
                 
                 %% Simulate Base Model
                 R.IntP.phaseStim.switch = 0 ;
@@ -112,13 +104,13 @@ if fresh
                 
                 %% Resimulate with Phase-Locked Input
                 R.IntP.phaseStim.switch = 1;
-
+                
                 % Simulate with Stimulation
                 [~,~,feat_sim{2},~,xsim_ip{2},~,Rout]  = computeSimData(R,m,uc_ip{1},Pbase,0);
-                tplot = 1;
+                tplot = 0;
                 if tplot == 1
-                                    load([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
-                                    pU = uexs(4,round(R.obs.brn*(1/R.IntP.dt))+1:end);
+                    load([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
+                    pU = uexs(4,round(R.obs.brn*(1/R.IntP.dt))+1:end);
                     % Optional Plots for TimeSeries
                     figure(100)
                     clf
@@ -139,9 +131,12 @@ if fresh
                     R.plot.outFeatFx({feat_sim{1}},{feat_sim{2}},R.data.feat_xscale,R,1,[])
                 end
                 load([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
-
+                
                 % Re-compute bursts (simulated data)
+                % Low Beta
                 R.condname = {'1','2'};
+                R.BB.powfrq = 18;
+                R.BB.cohfrq = 18;
                 [R,BB] = compute_BetaBursts_Simulated(R,{xsim_ip{1}{1} xsim_ip{2}{1}});
                 R.BB.thresh_prctile = 75;% o85; tl 80
                 R.BB.threshold_type = 'baseModelThresh';
@@ -152,6 +147,12 @@ if fresh
                 R.BB.pairInd = [1 4]; % KEEP LOOKING AT STN BURSTS!
                 BB = defineBetaEvents(R,BB);
                 
+                % High Beta
+                R.BB.powfrq = 24;
+                R.BB.cohfrq = 24;
+                [R,BBH] = compute_BetaBursts_Simulated(R,{xsim_ip{1}{1} xsim_ip{2}{1}});
+                BBH = compute_BurstThreshold(R,BBH,1,0);
+                BBH = defineBetaEvents(R,BBH);
                 %% Now get statistics of the simulations (spectra/burst features)
                 
                 for stm = 1:2
@@ -171,12 +172,26 @@ if fresh
                         burAmpMid(:,stm,p,cond) = [nanmedian(percentageChange(BB.segAmpMid,stm)) npCI(percentageChange(BB.segAmpMid,stm))];
                         burPPC(:,stm,p,cond) = [nanmedian(percentageChange(BB.segPLV,stm)) npCI(percentageChange(BB.segPLV,stm))];
                         burInt(:,stm,p,cond) = [nanmedian(percentageChange(BB.segInterval,stm)) npCI(percentageChange(BB.segInterval,stm))];
-                        burRP{1,stm,p,cond} = squeeze(BB.segRP{stm}(:,3,4));
-                        burRP{2,stm,p,cond} = squeeze(BB.segRP{stm}(:,1,4));
-                        durStore{stm,p} = BB.segDur{stm};
-                        ampStore{stm,p} = BB.segAmp{stm};
-                        ppcStore{stm,p} = BB.segPLV{stm};
-                        siStore{stm,p} = BB.segInterval{stm};
+                        burRP{1,1,stm,p,cond} = squeeze(BB.segRP{stm}(:,3,4));
+                        burRP{1,2,stm,p,cond} = squeeze(BB.segRP{stm}(:,1,4));
+                        burRP{2,1,stm,p,cond} = squeeze(BBH.segRP{stm}(:,3,4));
+                        burRP{2,2,stm,p,cond} = squeeze(BBH.segRP{stm}(:,1,4));
+                        
+                        plvStore{1,1,stm,p,cond} = abs(sum(exp(sqrt(-1)*burRP{1,1,stm,p,cond})))./numel(burRP{1,1,stm,p,cond});
+                        plvStore{1,2,stm,p,cond} = abs(sum(exp(sqrt(-1)*burRP{1,2,stm,p,cond})))./numel(burRP{1,2,stm,p,cond});
+                        plvStore{2,1,stm,p,cond} = abs(sum(exp(sqrt(-1)*burRP{2,1,stm,p,cond})))./numel(burRP{2,1,stm,p,cond});
+                        plvStore{2,2,stm,p,cond} = abs(sum(exp(sqrt(-1)*burRP{2,2,stm,p,cond})))./numel(burRP{2,2,stm,p,cond});
+                        
+                        durStore{1,stm,p} = BB.segDur{stm};
+                        ampStore{1,stm,p} = BB.segAmp{stm};
+                        ppcStore{1,stm,p} = BB.segPLV{stm};
+                        siStore{1,stm,p} = BB.segInterval{stm};
+                        
+                        durStore{2,stm,p} = BBH.segDur{stm};
+                        ampStore{2,stm,p} = BBH.segAmp{stm};
+                        ppcStore{2,stm,p} = BBH.segPLV{stm};
+                        siStore{2,stm,p} = BBH.segInterval{stm};
+                        
                         %                     trajStore{stm,p} = BB.segTraj{stm};
                     else
                         burRate(:,stm,p,cond) = nan;
@@ -204,7 +219,7 @@ if fresh
         save([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '_' stim_sens '_thresholdFitted.mat'],'powspec_save',...
             'intpow','maxpow','burRate','burdur','burAmp','burAmpMid','burPPC',...
             'durStore','ampStore','ppcStore','siStore',...
-            'burInt','phaseShift','NcS','burRP'); %,'trajStore')
+            'burInt','phaseShift','NcS','burRP','plvStore'); %,'trajStore')
     end
     
 end
@@ -214,7 +229,7 @@ ctype = 1;
 load([Rorg.rootn '\data\CloseLoop_stateDependency\CloseLoop_stateDependency_save_' num2str(ctype) '_' stim_sens '_thresholdFitted.mat'],'powspec_save',...
     'intpow','maxpow','burRate','burdur','burAmp','burAmpMid','burPPC',...
     'durStore','ampStore','ppcStore','siStore',...
-    'burInt','phaseShift','NcS','burRP'); %,'trajStore')
+    'burInt','phaseShift','NcS','burRP','plvStore'); %,'trajStore')
 %% First round of plots
 % cmapDisc = brewermap(9,'Set1');
 % cmap = brewermap(numel(phaseShift)+4,'Reds');
@@ -280,23 +295,40 @@ end
 set(gcf,'Position',[ 711   418   957   560])
 
 figure(2)
+ % High Beta RP
 titnames = {'Unstimulated','Max. Suppressing','Max. Amplifying'};
 psel = [1 3; 2 7; 2 1];
 for i = 1:3
-    subplot(1,4,i)
-        A = burRP{2,psel(i,1),psel(i,2),1};
+    subplot(2,4,i)
+    A = burRP{1,2,psel(i,1),psel(i,2),1};
     p = polarhistogram(A,-pi:pi/8:pi);
     if i == 1
-     p.FaceColor = [0 0 0];
+        p.FaceColor = [0 0 0];
     else
-    p.FaceColor = cmap(psel(i,2),:);
+        p.FaceColor = cmap(psel(i,2),:);
     end
     plv(i) = abs(sum(exp(sqrt(-1)*A)))./numel(A);
     title([titnames{i} sprintf('\n PLV = %0.3f',plv(i))] )
 end
-    subplot(1,4,4)
+subplot(4,4,4)
 bar(plv)
 
+ % High Beta RP
+psel = [1 3; 2 1; 2 7];
+for i = 1:3
+    subplot(2,4,i+4)
+    A = burRP{2,2,psel(i,1),psel(i,2),1};
+    p = polarhistogram(A,-pi:pi/8:pi);
+    if i == 1
+        p.FaceColor = [0 0 0];
+    else
+        p.FaceColor = cmap(psel(i,2),:);
+    end
+    plv(i) = abs(sum(exp(sqrt(-1)*A)))./numel(A);
+    title([titnames{i} sprintf('\n PLV = %0.3f',plv(i))] )
+end
+subplot(2,4,8)
+bar(plv)
 
 figure(1)
 ip = 0;

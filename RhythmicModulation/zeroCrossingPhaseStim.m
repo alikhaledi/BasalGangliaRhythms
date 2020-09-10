@@ -22,8 +22,6 @@ if R.IntP.phaseStim.eps == 0
     return
 end
 
-
-
 %  ts = 0:dt:3;
 if all(BEnv(end-50-fix(R.IntP.phaseStim.minBS/dt):end-50) > R.IntP.phaseStim.eps)
     if uexs(tstep,R.IntP.phaseStim.sensStm(2)) ==0
@@ -42,8 +40,6 @@ if all(BEnv(end-50-fix(R.IntP.phaseStim.minBS/dt):end-50) > R.IntP.phaseStim.eps
     end
 else
     uexs(tstep+1:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = 0;
-    
-    %         a = 1;
 end
 % Demo only
 % These are for demo only

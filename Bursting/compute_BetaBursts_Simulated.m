@@ -9,11 +9,18 @@ R.cohband = 2;
 R.BB.PLmeth = 'PLV'; % This is for sliding window (Approach to within burst sync(1) Take mean of sliding window, (2) Compute PPC within burst)
 R.BB.decompmeth.type = 'filter'; %'none';
 R.BB.decompmeth.filter.bwidamp = 7.5; %o7.5; % filter bandwidth
-R.BB.decompmeth.filter.bwidsync = 7.5; %o7.5 filter bandwidth
+R.BB.decompmeth.filter.bwidsync = 7.5; %7.5; %o7.5 filter bandwidth
 R.BB.SW.winsize = 0.25;
 R.BB.SW.winover = 0.90;
-BB.powfrq = 18;
-BB.cohfrq = 18;
+if ~isfield(R.BB,'powfrq')
+    R.BB.powfrq = 18;
+end
+BB.powfrq = R.BB.powfrq;
+
+if ~isfield(R.BB,'cohfrq')
+    R.BB.cohfrq = 18;
+end
+BB.cohfrq = R.BB.cohfrq;
 R.BB.powres = 3;
 R.BB.cohres = 3;
 R.BB.pairInd = [1 4]; % first is reference, second is main channel (e.g. M2 and STN)
