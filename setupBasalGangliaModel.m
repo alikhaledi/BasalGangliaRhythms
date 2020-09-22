@@ -27,7 +27,7 @@ R.obs.csd.reps = 32; %36; %96;
 R.IntP.intFx = @spm_fx_compile_120319;
 R.IntP.compFx= @compareData_100717;
 
-R.IntP.dt = .001;
+R.IntP.dt = .0005;
 R.IntP.Utype = 'white_covar'; %'white_covar'; % DCM_Str_Innov
 R.IntP.buffer = ceil(0.050*(1/R.IntP.dt)); % buffer for delays
 

@@ -284,9 +284,9 @@ for condsel = 1:numel(R.condnames)
         xstore = [xstore xint]; % This is done for speed reasons! Faster than indexing (!!)
 
         %% Stim set
-        if tstep >((R.obs.brn)/dt) && (rem(tstep,R.IntP.phaseStim.upperiod) == 0) %&& ~any(uexs(tstep,:))
+        if tstep >((R.obs.brn)/dt) && (rem(tstep,R.IntP.phaseStim.upperiod/dt) == 0)
             if R.IntP.phaseStim.switch
-                 [uexs,R] = zeroCrossingPhaseStim(uexs,R,tstep,xstore,dt,std(us(:,R.IntP.phaseStim.sensStm(2))));
+                 [uexs,R] = zeroCrossingPhaseStim_v3(uexs,R,tstep,xstore,dt,std(us(:,R.IntP.phaseStim.sensStm(2))));
             end
         end
 
@@ -299,6 +299,10 @@ for condsel = 1:numel(R.condnames)
     % disp(tstep/R.IntP.nt)
     % xint= spm_unvec(x,M.x);
 end
+
+
+
+
 mkdir([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\'])
 save([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp'],'uexs')
 if wflag == 1
