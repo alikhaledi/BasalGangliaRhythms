@@ -43,7 +43,12 @@ addpath([madpath '\Circular_Statistics_Toolbox'])
 addpath([madpath '\Neurospec\neurospec21'])
 addpath([madpath '\DrosteEffect-BrewerMap-221b913'])
 addpath([madpath '\SplitVec'])
+addpath([madpath '\permutest'])
+addpath([madpath '\tight_subplot'])
 addpath([madpath '\TWtools'])
+
+
+
 % pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 % if ~onPath; addpath(spmpath); spm eeg; close all; end
 % addpath(['C:\Users\' usname '\Documents\' madpath '\ParforProgMon'])

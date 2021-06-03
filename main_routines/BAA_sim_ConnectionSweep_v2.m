@@ -1,6 +1,6 @@
 function [R] = BAA_sim_ConnectionSweep_v2(Rorg,modID,simtime,HD)
 
-% Comopute simulations by sweeping across data
+%Comopute simulations by sweeping across data
 % [R,m,permMod] = getSimModelData_v3(Rorg,modID,simtime);
 % mkdir([Rorg.rootn 'data\ModelFit\'])
 % save([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
@@ -19,8 +19,9 @@ if HD == 1
 elseif HD == 2
     % Sliding scale
     % Used for: (1) Plot Spectra over sweeps
-        ck_1(1,:) = [1 logspace(-1,log10(5),34)];
-        ck_1(3,:) = [1 logspace(-1,log10(1.90),34)];
+        ck_1(1,:) = [1 logspace(-1,log10(3.11),30)];
+        ck_1(3,:) = [1 logspace(-1,log10(1.33),30)]; % alt version
+%         ck_1(3,:) = [1 logspace(log10(0.5882),log10(1.33),30)]; % alt version
         
     hdext = '_F1';
 elseif HD == 3
@@ -56,24 +57,30 @@ elseif HD == 3
     
 end
 
+%% Trans Options
+R.obs.SimOrd = 10;
+R.obs.trans.norm = 0;
+R.obs.gainmeth = {};
+
 %% Compute Noise
 % Give all timeseries the same input - makes comparable
+rng(2315324)
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
 XBase = permMod{1}.par_rep{1};
 R.IntP.getNoise = 1; % This turns off all the connections to get resting endogenous noise for each node
-R.obs.SimOrd = 10;
-R.obs.trans.norm = 0;
-R.obs.gainmeth = {};
+R.obs.csd.df = 0.25; % increase spectral resolution
+R.obs.SimOrd = 11;
 [dum1,dum2,feat_sim_noise,dum3,xsim_noise] = computeSimData(R,m,uc,XBase,0);
+R.IntP.getNoise = 0;
+
 
 %% Loop through Connections
-R.IntP.getNoise = 0;
 m = m;
 for CON = [1 3]
     feat = {};
     xsim = {};
-    for i = 1:size(ck_1,2)
+    parfor i = 1:size(ck_1,2)
         % Now Modify
         Pbase = XBase;
         if CON == 1 % Hyperdirect
@@ -85,7 +92,7 @@ for CON = [1 3]
         elseif CON == 4 % Subthalamo-pallidal
             Pbase.A{1}(3,4) = log(exp(Pbase.A{1}(3,4))*ck_1(CON,i)); %
         end
-        [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData(R,m,uc,Pbase,0);
+        [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData(R,m,uc,Pbase,0,1);
         feat{i} = feat_sim;
         xsim{i} = xsim_gl;
         

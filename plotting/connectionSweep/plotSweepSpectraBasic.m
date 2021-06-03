@@ -1,4 +1,4 @@
-function R = plotSweepSpectraWrapper(R)
+function R = plotSweepSpectraBasic(R)
 close all
 rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
 
@@ -20,32 +20,32 @@ for CON = [1 3]
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
     figure(1)
     if CON == 1
-        subplot(4,3,1)
+        subplot(2,3,1)
     elseif CON == 3
-        subplot(4,3,7)
+        subplot(2,3,4)
     end
     a = plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[1,1,1],statecmap{CON})
-    title('M2 Power')
+    title('M2 power')
         ylim([1e-15 5e-14])
         set(gca, 'YScale', 'log'); %, 'XScale', 'log')
     
     if CON == 1
-        subplot(4,3,2)
+        subplot(2,3,2)
     elseif CON == 3
-        subplot(4,3,8)
+        subplot(2,3,5)
     end
     plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[4,4,1],statecmap{CON})
-    title('STN Power')
+    title('STN power')
         ylim([1e-16 1e-12])
         set(gca, 'YScale', 'log'); %, 'XScale', 'log')
     
     if CON == 1
-        subplot(4,3,3)
+        subplot(2,3,3)
     elseif CON == 3
-        subplot(4,3,9)
+        subplot(2,3,6)
     end
     plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[4,1,4],statecmap{CON})
-    title('M2/STN Coherence')
+    title('M2/STN coherence')
             ylim([0 1])
     
 end
@@ -76,96 +76,9 @@ for CON = [1 3]
     fcoh(powInds) = nan(1,numel(powInds));
     bcohr(powInds) = nan(1,numel(powInds));
     
-    
-    %     % Find the indices of band power
-    %     [dum b1] = min(abs(bpowr_br-(-90)));
-    %     [dum b2] = min(abs(bpowr_br-(0)));
-    %     [dum b3] = min(abs(bpowr_br-(190)));
-    %     if b2 == b3
-    %         b3 = b2+1;
-    %     end
-    %     betaKrange(:,CON) = [b1 b2 b3];
-    %     betaEquiv(:,CON) = bpowr_br([b1 b2 b3]);
-    %     kEquiv(:,CON) = ck_1([b1 b2 b3]);
     Krange{CON} = ck_1(bpowr<500);
     
     bsel = 2:4:31;
-    
-    figure(1)
-    % M2 Power Track
-    if CON == 1
-        subplot(4,3,4)
-    elseif CON == 3
-        subplot(4,3,10)
-    end
-    br = plot(ck_1*100,(bpowrCtx),'k-');
-    hold on
-    Sr = scatter(ck_1(1,bsel)*100,(bpowrCtx(bsel)),50,cmap1(bsel,:),'filled');
-    ylabel('log % of STN Fitted Power')
-    grid on; set(gca,"XScale",'log')
-    
-    yyaxis right
-    br = plot(ck_1*100,(fpowCtx),':');
-    hold on
-    Sr = scatter(ck_1(1,bsel)*100,(fpowCtx(bsel)),50,cmap2(bsel,:),'filled');
-    Sr.Marker = 'diamond';
-    ylabel('Peak Frequency (Hz)')
-    xlabel('log_{10} % Connection Strength')
-    title('M2 Power')
-    xlim([10 1000]);
-    ylim([12 28])
-    yyaxis left
-    ylim([-100 200])
-    
-    % STN Power
-    if CON == 1
-        subplot(4,3,5)
-    elseif CON == 3
-        subplot(4,3,11)
-    end
-    br = plot(ck_1*100,bpowr,'k-');
-    hold on
-    Sr = scatter(ck_1(1,bsel)*100,(bpowr(bsel)),50,cmap1(bsel,:),'filled');
-    ylabel('log % of STN Fitted Power')
-    grid on; set(gca,"XScale",'log')
-    
-    yyaxis right
-    br = plot(ck_1*100,fpow,':');
-    hold on
-    Sr = scatter(ck_1(1,bsel)*100,(fpow(bsel)),50,cmap2(bsel,:),'filled');
-    Sr.Marker = 'diamond';
-    ylabel('Peak Frequency (Hz)')
-    xlabel('log_{10} % Connection Strength')
-    title('STN Power')
-    xlim([10 1000]);
-    ylim([12 28])
-    yyaxis left
-    ylim([-100 200])
-    
-    % STN/M2 Coherence
-    if CON == 1
-        subplot(4,3,6)
-    elseif CON == 3
-        subplot(4,3,12)
-    end
-    br = plot(ck_1*100,bcohr,'k-');
-    hold on
-    Sr = scatter(ck_1(1,bsel)*100,bcohr(bsel),50,cmap1(bsel,:),'filled');
-    ylabel('M2/STN Coherence')
-    grid on; set(gca,"XScale",'log')
-    
-    yyaxis right
-    br = plot(ck_1*100,(fcoh),':');
-    hold on
-    Sr = scatter(ck_1(1,bsel)*100,(fcoh(bsel)),50,cmap2(bsel,:),'filled');
-    Sr.Marker = 'diamond';
-    ylabel('Peak Coh. Frequency (Hz)')
-    xlabel('log_{10} % Connection Strength')
-    title('STN/M2 Coherence')
-    xlim([10 1000]);
-    ylim([12 28])
-    yyaxis left
-    ylim([-75 75])
     
     %% Data Selection
     indsel = [bsel(1) bsel(end)];
@@ -179,4 +92,4 @@ save([rootan '\BB_' R.out.tag '_DiscreteData.mat'],'dataSelect','dataProperties'
 R.Krange = Krange;
 save([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_KRange.mat'],'Krange')
 % R.betaKrange(3,3) = 19;
-set(gcf,'Position',[488.0000 -167.0000  954.6000  929.0000])
+set(gcf,'Position',[ 518         250        1211         633])

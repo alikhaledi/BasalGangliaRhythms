@@ -100,8 +100,6 @@ for SScomb = 1:2
                 eps(cond) =  R.IntP.phaseStim.eps;
                 
                 for p = 1:numel(phaseShift) %[1 10] %
-                    
-                    
                     %% Resimulate with Phase-Locked Input
                     R.IntP.phaseStim.switch = 1;
                     
@@ -116,10 +114,10 @@ for SScomb = 1:2
                     indsS = SplitVec(find(abs(pU)>0),'consecutive'); % Split up data based upon the target threshold
                     indsN = SplitVec(find(abs(pU)==0),'consecutive'); % Split up data based upon the target threshold
                     
-%                     for c = 1:numel(indsS)-1
-%                     indsS{c} = [indsS{c} indsS{c}(end):indsS{c}(end)+300];
-%                     end
-%                     indsS{end} = [];
+                    %                     for c = 1:numel(indsS)-1
+                    %                     indsS{c} = [indsS{c} indsS{c}(end):indsS{c}(end)+300];
+                    %                     end
+                    %                     indsS{end} = [];
                     
                     XS{1} = xsim_ip{1}{1}([1 4],[indsS{:}]); % No stim
                     XS{2} = xsim_ip{2}{1}([1 4],[indsS{:}]); % with stim
@@ -143,7 +141,7 @@ for SScomb = 1:2
                         hold on
                         plot(Rout.IntP.tvec_obs,xsim_ip{2}{1}(4,2:end)+5e-6);
                         linkaxes(a,'x')
-                                            xlim([30.9 31.9])
+                        xlim([30.9 31.9])
                         R.plot.outFeatFx({feat_sim{1}},{feat_sim{2}},R.data.feat_xscale,R,1,[])
                         
                     end

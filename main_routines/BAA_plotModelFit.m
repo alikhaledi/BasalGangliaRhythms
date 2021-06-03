@@ -26,7 +26,7 @@ set(gcf,'Position',[50         550        1686         436])
 % R = prepareRatData_NoGauss_Group_NPD(Rorg,0,0);
 
 figure
-plotABCSpectraOnly(Rorg.data.feat_xscale,Rorg.data.feat_emp,permMod{1}.feat_rep{1})
+plotABCSpectraOnly(R.data.feat_xscale,R.data.feat_emp,permMod{1}.feat_rep{1})
 figure
 npdplotter_110717({R.data.feat_emp},{permMod{1}.feat_rep{1}},R.data.feat_xscale,R,[],[])
 

@@ -33,7 +33,9 @@ for CON = [1 3]
             winsize(2) = 1*fsamp;
             burstSelInds = cropBurstSelection(burstSelInds,winsize,size(X,2));% Remove bursts at ends
             
-            [twin{band,state},m2Env{band,state},stnEnv{band,state},dPhi{band,state},sw_twin{band,state},sw_PLV{band,state},aftdPhi{band,state},aftdPhi2{band,state}] = getBurstTraces(burstSelInds,winsize,fsamp,XEnv,XPhi);
+            [twin{band,state},m2Env{band,state},stnEnv{band,state},...
+             dPhi{band,state},sw_twin{band,state},sw_PLV{band,state},...
+             aftdPhi{band,state},aftdPhi2{band,state}] = getBurstTraces(burstSelInds,winsize,fsamp,XEnv,XPhi);
             
         end
     end

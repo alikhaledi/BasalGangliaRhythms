@@ -29,15 +29,15 @@ R.IntP.phaseStim.switch = 1;
 R = typeIstimPars_v3(R);
 R.IntP.phaseStim.epsthresh = 0;
 R.IntP.phaseStim.phaseshift = 0;
-
+R.IntP.phaseStim.stimGap = 0;
 %% Start some tests
 
-for test =1:2
-    
+for test = 1
+     R.IntP.phaseStim.filtflag = 0;
     if test == 2
         load exampledata
     elseif test == 1
-        tData=80;  % in Secs
+        tData=80.0005;  % in Secs
         SR=1/R.IntP.dt;
         nData=SR*tData + 1;
         tmaxis=(0:nData-1)*R.IntP.dt;
@@ -77,12 +77,17 @@ for test =1:2
         BUB = filtfilt(R.IntP.phaseStim.filtB,R.IntP.phaseStim.filtA,padarray(BU,[0 1/dt]));
         BUB([1:1/dt 1+end-1/dt:end]) = [];
         
+        
+        ampT = abs(hilbert(BUB));
+        highAmpInd = find(ampT>prctile(ampT,50));
         phiT = angle(hilbert(BUB));
         
         pred = wrapToPi(phi(1:numel(phiT)))';
         act = phiT;
         
         PLV(test,res) = abs(sum(exp(i*(pred-act))))./numel(act);
+        PLV_ha(test,res) = abs(sum(exp(i*(pred(highAmpInd)-act(highAmpInd)))))./numel(act(highAmpInd));
+        
         tvec = linspace(0,numel(pred)*dt,numel(pred));
         subplot(2,2,sub2ind([2 2],res,test)); plot(tvec,pred); hold on; plot(tvec,act)
         xlim([75 76])
