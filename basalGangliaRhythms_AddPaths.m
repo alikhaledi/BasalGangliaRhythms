@@ -29,13 +29,16 @@ if ~exist('gitpath2','var')
     gitpath2 = gitpath;
 end
 
-R.rootn = [gitpath2 '\BasalGangliaRhythms\'];
+R.path.rootn = [gitpath2 '\BasalGangliaRhythms\'];
 
 % Add the root
-addpath(genpath(R.rootn))
+addpath(genpath(R.path.rootn))
 
 % Add External Toolboxes
-addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
+% addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery'])) % legacy implementation
+addpath(genpath([gitpath '\ABCNeuralModellingToolbox\sim_machinery'])) % NeuroImage 2018 Implementation
+rmpath(genpath([R.path.rootn 'InputModel_legacy']))
+
 pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 if ~onPath; addpath(spmpath); spm eeg; close all; end
 addpath(genpath([gitpath '\BurstToolbox']))

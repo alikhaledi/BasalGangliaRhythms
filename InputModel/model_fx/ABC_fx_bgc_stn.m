@@ -32,7 +32,7 @@ T = P.T;
 
 % pyramidal cells: Hidden causes - error
 %--------------------------------------------------------------------------
-u      =  U(1) + U(2);
+u      =  U;
 % u      =  u; %-G(:,1)*S(:,1) + u; % FOR SELF CONNECTIONS
 f(:,2) =  (u - 2*x(:,2) - x(:,1)./T(1,1))./T(1,1);
 % Voltage

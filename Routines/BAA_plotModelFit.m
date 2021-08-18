@@ -6,14 +6,16 @@ Rorg.obs.trans.gauss = 1; % Smooth with sum of 3 gaussians
 Rorg.obs.obsstates = [1:6]; % All 6 nodes are observed
 Rorg.chloc_name = Rorg.chsim_name; % Ensure sim names match to output names
 % Call the simulator
-[R,m,permMod,xsimMod] = getSimModelData_v3(Rorg,modID,simtime,1);
-
+Rorg.out.dag = sprintf([Rorg.out.tag '_M%.0f'],modID);
+[Rout,m,p] = loadABCData_160620(Rorg);
+Rout.IntP.intFx = @ABC_fx_compile_120319; % update fx name
+[modelError,pnew,feat_sim,xsims,xsims_gl,~,Rout] = computeSimData_160620(Rout,m,[],p,simtime,1);
 
 close all;
-X = xsimMod{1}{1}{1};
+X = xsims_gl{1};
 for i = 1:6
     figure(1)
-    plot(R.IntP.tvec_obs,X(i,:))
+    plot(Rout.IntP.tvec_obs,X(i,2:end)-(6*i))
     hold on
     %     figure(2+i)
     %  pspectrum(X(i,:),1/R.IntP.dt,'spectrogram','TimeResolution',0.5,...
@@ -26,10 +28,9 @@ set(gcf,'Position',[50         550        1686         436])
 % R = prepareRatData_NoGauss_Group_NPD(Rorg,0,0);
 
 figure
-plotABCSpectraOnly(Rorg.data.feat_xscale,Rorg.data.feat_emp,permMod{1}.feat_rep{1})
+plotABCSpectraOnly(Rout.data.feat_xscale{1},Rout.data.feat_emp{1},feat_sim{1})
 figure
-npdplotter_110717({R.data.feat_emp},{permMod{1}.feat_rep{1}},R.data.feat_xscale,R,[],[])
-
+genplotter_200420({Rout.data.feat_emp},{feat_sim},Rout.data.feat_xscale,Rout,[],[])
 
 % featn = {'cross','auto','cross_only'};
 % bandlim = {[],[14 21],[21 30],[14 30]};

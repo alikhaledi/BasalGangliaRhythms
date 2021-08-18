@@ -38,7 +38,7 @@ BAA_sim_lesionExp_signChange(R,modID,simlength,fresh)
 BAA_sim_lesionExp_cortical_rhythms(R,modID,simlength,fresh)
 
 %% Perform sweep over connections and simulate
-BAA_sim_ConnectionSweep_v2(R,modID,100,2)
+Just been(R,modID,100,2)
 
 %% Figure (3): Sweep over connections and plot spectra
 R = plotSweepSpectraWrapper(R); % This doesnt just plot but also works out the vector Krange for spread of viable connections
@@ -71,10 +71,10 @@ burstLockCheck(R,fresh)
 OnsetEvolveAnalysisMaster(R)
 
 %% Figure (6 and 7): Closed loop stimulation- M2 and STN simulation 
-simlength = 80; %80;
-fresh = 1;
-BAA_sim_fakeCloseLoop_StateDependency_v2(R,modID,simlength,fresh);
 
+
+
+BAA_sim_deterministic_probe(R,modID,simlength,fresh)
 %% Figure (8): Plot State dependency of ARCs
 ClosedLoop_StateDependence_PLot
 
@@ -98,6 +98,7 @@ ClosedLoop_StateDependence_PLot
 %
 % % TimeLockedBetaPLVAnalysis(R,BB,xsimMod,AS)
 % % 
+
 % % %% Bifurc
 % % BAA_sim_InputSweep_v2(R,modID,35,4)
 

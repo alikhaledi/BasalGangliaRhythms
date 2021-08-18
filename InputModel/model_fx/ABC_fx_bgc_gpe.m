@@ -13,9 +13,9 @@ function f = ABC_fx_bgc_gpe(x,u,P)
 
 % pre-synaptic inputs: s(V)
 %--------------------------------------------------------------------------
-R    = P.Rz(2:end);              % gain of activation function (1st is extrinsic- so remove)
-S = sigmoidin(x,R,0);
-S = S';
+% R    = P.Rz(2:end);              % gain of activation function (1st is extrinsic- so remove)
+% S = sigmoidin(x,R,0);
+% S = S';
 
 % R    = R.*exp(P.S);              % gain of activation function
 % F    = 1./(1 + exp(-R*x + 0));   % firing rate
@@ -40,7 +40,7 @@ G = P.G;
 
 % inhibitory interneurons: Hidden states - error
 %--------------------------------------------------------------------------
-u      =  U(1);  
+u      =  U;  
 % u      =  -G(:,1)*S(:,1) + u;
 f(:,2) =  (u - 2*x(:,2) - x(:,1)./T(1,1))./T(1,1);
 

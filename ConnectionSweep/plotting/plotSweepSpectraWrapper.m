@@ -1,6 +1,6 @@
 function R = plotSweepSpectraWrapper(R)
 close all
-rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
+rootan = [R.path.rootn 'data\' R.out.tag '\ConnectionSweep'];
 
 % load([R.rootn 'routine\' R.out.oldtag '\BetaBurstAnalysis\Data\BB_' R.out.tag '_ConnectionSweep_feat_F1.mat'],'feat_HD','feat_STR_GPe')
 R.CONnames = {'M2 -> STN','STR -| GPe','GPe -| STN','STN -> GPe'};
@@ -9,7 +9,7 @@ cmap1 = brewermap(40,'Reds');
 % cmap1(22,:) = [0 0 0];
 cmap2 = brewermap(40,'Blues');
 % cmap2(28,:) = [0 0 0];
-for CON = [1 3]
+for CON = 1
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
     figure(1)
@@ -18,7 +18,7 @@ for CON = [1 3]
     elseif CON == 3
         subplot(4,3,7)
     end
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[1,1,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:1:35,[1,1,1])
     title(R.CONnames{CON})
 %     ylim([1e-16 1e-13])
     set(gca, 'YScale', 'log', 'XScale', 'log')

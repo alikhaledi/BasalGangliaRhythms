@@ -1,14 +1,9 @@
 function [R] = BAA_sim_ConnectionSweep_v2(Rorg,modID,simtime,HD)
 
-% Comopute simulations by sweeping across data
-% [R,m,permMod] = getSimModelData_v3(Rorg,modID,simtime);
-% mkdir([Rorg.rootn 'data\ModelFit\'])
-% save([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
 
-% OR Load it in:
-load([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
-warning('Loading Preloaded model, cant change simtime or model choice!!!')
-pause(1)
+Rorg.out.dag = sprintf([Rorg.out.tag '_M%.0f'],modID);
+[R,m,p] = loadABCData_160620(Rorg);
+
 %% Connection Sets
 if HD == 1
     % discrete connection list
@@ -20,7 +15,7 @@ elseif HD == 2
     % Sliding scale
     % Used for: (1) Plot Spectra over sweeps
     for CON = [1 3]
-        ck_1(CON,:) = logspace(-1,1,40);
+        ck_1(CON,:) = logspace(-1,1,64);
     end
     hdext = '_F1';
 elseif HD == 3
@@ -60,12 +55,12 @@ end
 % Give all timeseries the same input - makes comparable
 uc = innovate_timeseries(R,m);
 uc{1} = uc{1}.*sqrt(R.IntP.dt);
-XBase = permMod{1}.par_rep{1};
+XBase = p; %permMod{1}.par_rep{1};
 R.IntP.getNoise = 1; % This turns off all the connections to get resting endogenous noise for each node
 R.obs.SimOrd = 10;
 R.obs.trans.norm = 0;
 R.obs.gainmeth = {};
-[dum1,dum2,feat_sim_noise,dum3,xsim_noise] = computeSimData(R,m,uc,XBase,0);
+[dum1,dum2,feat_sim_noise,dum3,xsim_noise] = computeSimData_160620(R,m,uc,XBase,0);
 
 %% Loop through Connections
 R.IntP.getNoise = 0;
@@ -85,11 +80,11 @@ for CON = [1 3]
         elseif CON == 4 % Subthalamo-pallidal
             Pbase.A{1}(3,4) = log(exp(Pbase.A{1}(3,4))*ck_1(CON,i)); %
         end
-        [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData(R,m,uc,Pbase,0);
+        [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData_160620(R,m,uc,Pbase,0);
         feat{i} = feat_sim;
         xsim{i} = xsim_gl;
     end
-    rootan = [Rorg.rootn 'data\' Rorg.out.oldtag '\ConnectionSweep'];
+    rootan = [Rorg.path.rootn 'data\' Rorg.out.tag '\ConnectionSweep'];
     mkdir(rootan)
     
     save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext '.mat'],'feat')

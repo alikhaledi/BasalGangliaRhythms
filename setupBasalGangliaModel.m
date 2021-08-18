@@ -1,9 +1,9 @@
 function R = setupBasalGangliaModel(R)
 set(0,'defaultAxesFontName','Arial')
 %% This is a direct migration from the ABC repository. Has lots of unnecessary (unused) entries.
-R.projectn = 'Rat_NPD';
-R.out.tag = 'InDrt_ModCompRev2';
-R.out.oldtag = 'rat_InDirect_ModelComp';
+R.path.projectn = 'Rat_NPD';
+R.out.tag = 'figure5_ModelComp';
+% R.out.oldtag = 'rat_InDirect_ModelComp';
 %  R.out.tag = 'InDrt_ModCompRevTest';
 %  R.out.oldtag = 'InDrt_ModCompRevTest';
 
@@ -11,7 +11,7 @@ R.out.oldtag = 'rat_InDirect_ModelComp';
 % addpath(genpath(R.rootm))
 % 
 %% DATA SPECIFICATION
-R.filepathn = [R.rootn 'data\storage'];
+R.filepathn = [R.path.rootn 'data\storage'];
 R.data.datatype = 'NPD'; %%'NPD'
 R.frqz = [6:.2:68];
 R.frqzfull = [1:.2:200]; % used for filters
@@ -24,7 +24,7 @@ R.obs.csd.reps = 32; %36; %96;
 
 %% INTEGRATION
 % Main dynamics function
-R.IntP.intFx = @spm_fx_compile_120319;
+R.IntP.intFx = @ABC_fx_compile_120319;
 R.IntP.compFx= @compareData_100717;
 
 R.IntP.dt = .001;
