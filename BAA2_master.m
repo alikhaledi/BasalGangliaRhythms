@@ -5,10 +5,10 @@
 % ganglia circuit implemented in Dynamic Causal Modelling and previously  %
 % described in van Wijk et al. (2018). This model was fit to data from    %
 % West al. (2018) using an optimization based upon Approximate Bayesian   %
-% Computation and described in West et al. (2019). Many of these analyses %
+% Computation and described in West et al. (2021). Many of these analyses %
 % are based upon scripts included in publicly available toolboxes and     %
 % generously provided by their respective authors. Please see             %
-% 'ABC_dependencies' for their licenses.                                  %
+% 'ABC_dependencies' for their respective licenses.                       %
 % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 % Timothy West, Nuffield Department of Clinical Neurosciences, University %
 % of Oxford; Wellcome Centre for Human Neuroscience, University College   %

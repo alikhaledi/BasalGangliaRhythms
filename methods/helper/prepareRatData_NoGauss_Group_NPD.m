@@ -31,13 +31,12 @@ for C =1:numel(R.condnames)
                 F_data(F_data>48 & F_data<52) = [];
                 % Put in the same frequency space as the models
                 Pxy = interp1(F_data,Pxy,F_model);
-                
                 % Regress out the 1/f background
                 [xCalc yCalc b Rsq] = linregress(log10(F_model)',Pxy');
                 if nulldat == 1
                     Pxy = 10.^yCalc;
                 else
-                    Pxy = Pxy-yCalc';
+                    Pxy = Pxy-fliplr(yCalc');
                     % Bring to zero-base
 %                     Pxy = Pxy-min(Pxy);
 %                     % Fit up to 3rd order Gaussian

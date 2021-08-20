@@ -23,6 +23,13 @@ switch getenv('computername')
         gitpath =  'C:\Users\Tim West\Documents\GitHub';
         madpath = 'C:\Users\Tim West\Documents\MATLAB ADDONS';
         spmpath = 'C:\Users\Tim West\Documents\GitHub\spm12';
+    case 'DESKTOP-0HO6J14'
+        usname = 'Tim West';
+        gitpath =  'D:\GITHUB';
+        madpath = 'C:\Users\timot\OneDrive\Documents\Work\MATLAB ADDONS';
+        spmpath = 'D:\GITHUB\spm12';
+%         gitpath2 = 'D:\GITHUB_STORE';
+        
 end
 % Sometimes the main project is some other folder to Github default
 if ~exist('gitpath2','var')
@@ -35,7 +42,7 @@ R.rootn = [gitpath2 '\BasalGangliaRhythms\'];
 addpath(genpath(R.rootn))
 
 % Add External Toolboxes
-addpath(genpath([gitpath '\ABC_Inference_Neural_Paper\sim_machinery']))
+addpath(genpath([gitpath2 '\ABC_Inference_Neural_Paper\sim_machinery']))
 pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 if ~onPath; addpath(spmpath); spm eeg; close all; end
 addpath(genpath([gitpath '\BurstToolbox']))

@@ -23,7 +23,7 @@ for i = 1:6
 end
 xlim([30 40])
 set(gcf,'Position',[50         550        1686         436])
-% R = prepareRatData_NoGauss_Group_NPD(Rorg,0,0);
+R = prepareRatData_NoGauss_Group_NPD(Rorg,0,0);
 
 figure
 plotABCSpectraOnly(R.data.feat_xscale,R.data.feat_emp,permMod{1}.feat_rep{1})
