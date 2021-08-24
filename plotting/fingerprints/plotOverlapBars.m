@@ -21,7 +21,7 @@ end
 
     YS = [];
     YS = [YS; squeeze(XS(1,:,2,1)); squeeze(XS(2,:,2,1)); squeeze(XS(1,:,3,1)); squeeze(XS(2,:,3,1))]; % CON = 1
-    YS = [YS; squeeze(XS(1,:,2,3)); squeeze(XS(2,:,2,3)); squeeze(XS(1,:,3,3)); squeeze(XS(2,:,3,3))]; % CON = 3
+    YS = [YS; squeeze(XS(1,:,2,2)); squeeze(XS(2,:,2,2)); squeeze(XS(1,:,3,2)); squeeze(XS(2,:,3,2))]; % CON = 2
     
     %     p(:,:,2) = [];
 %     p = [p(:,2:3,1) p(:,2:3,2)];

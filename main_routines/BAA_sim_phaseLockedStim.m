@@ -6,11 +6,11 @@ function [R] = BAA_sim_phaseLockedStim(Rorg)
 % save([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
 
 % OR Load it in:
-load([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
+load([Rorg.rootn 'data\ModelFit\SimModelData_M10.mat'],'R','m','permMod')
 R.rootn = Rorg.rootn;
 R.filepathn = Rorg.filepathn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-for SScomb = 4; %1:2
+for SScomb = 1:5
     %% Define stimulation conditions
     if SScomb == 1
         % Stimualating M2
@@ -18,30 +18,35 @@ for SScomb = 4; %1:2
         stimsite = 1; % M2
         stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimM2_sensSTN';
+        phflag = 1;
     elseif SScomb == 2
         % Stimulating  STN
         senssite = 1; % M2
         stimsite = 4; % STN
         stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimSTN_sensM2';
+        phflag = 1;
     elseif SScomb == 3
         % Stimulating  STN
         senssite = 3; % GPe
         stimsite = 1; % STN
         stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimSTN_sensGPe';
+        phflag = 1;
     elseif SScomb == 4
         % Stimualating M2
         senssite = 4; % STN
         stimsite = 1; % M2
         stimFx = @highFreqStim_pulse_v1;
         stim_sens = 'stimM2_sensSTN';
+        phflag = 0;
     elseif SScomb == 5
         % Stimulating  STN
         senssite = 1; % M2
         stimsite = 4; % STN
         stimFx = @highFreqStim_v1;
         stim_sens = 'stimSTN_sensM2';
+        phflag = 0;
     end
     R.IntP.phaseStim.sensStm = [senssite stimsite];
     
@@ -74,15 +79,15 @@ for SScomb = 4; %1:2
     
     % Phase To be Tested
     R.IntP.intFx = @spm_fx_compile_120319_stim;
+    
     phaseShift = linspace(0,2.*pi,13); %13% List of phases to be tested
     phaseShift = phaseShift(1:12); %12
     
-    
     %% Loop through Connections
-    for CON = 3; %[1 3]
+    for CON = 1; %:2
         feat_sim_save = {};
         xsim_ip = {};
-        for state = 2:size(ck_1,2)
+        for state = 1; %2:size(ck_1,2)
             %% Setup Base Model
             Pbase = XBase;
             if CON == 1 % Hyperdirect
@@ -109,7 +114,7 @@ for SScomb = 4; %1:2
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
             %             parfor p = 1:numel(phaseShift)
-            for p = 1:numel(phaseShift)
+            parfor p = 1:numel(phaseShift)
                 
                 Rpar = R;
                 % Modulate the phase
