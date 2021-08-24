@@ -10,7 +10,7 @@ load([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
 R.rootn = Rorg.rootn;
 R.filepathn = Rorg.filepathn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-for SScomb = 3; %1:2
+for SScomb = 5; %1:2
     %% Define stimulation conditions
     if SScomb == 1
         % Stimualating M2
@@ -30,7 +30,7 @@ for SScomb = 3; %1:2
         stimsite = 1; % STN
         stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimSTN_sensGPe';
-    elseif    SScomb == 4
+    elseif SScomb == 4
         % Stimualating M2
         senssite = 4; % STN
         stimsite = 1; % M2

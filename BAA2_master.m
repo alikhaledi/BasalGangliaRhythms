@@ -33,7 +33,7 @@ BAA_plotModelFit(R,modID,simlength);
 plotDataComparison % plots the time series in figure 1A and C
 
 %% Perform simulations with connectivity Sweep
-BAA_sim_ConnectionSweep_v2(R,modID,100,2)
+BAA_sim_ConnectionSweep_v3(R)
 
 %% Figure (2): Sweep over connections and plot spectra
 R = plotSweepSpectraBasic(R); % This doesnt just plot but also works out the vector Krange for spread of viable connections
