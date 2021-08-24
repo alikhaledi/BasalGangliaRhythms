@@ -1,5 +1,5 @@
 function plotOverlapMats(R,overlapMat,CON,cmap,ha)
-sblot = [2 1 3;0 0 0;5 7 9];
+sblot = [2 1 3;5 7 9];
  
 for state = 2:3
 %     if state == 2

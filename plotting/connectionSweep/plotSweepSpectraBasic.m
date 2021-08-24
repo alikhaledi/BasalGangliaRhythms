@@ -27,7 +27,7 @@ for CON = 1:2
         set(gca, 'YScale', 'log'); %, 'XScale', 'log')
     if CON == 1
         subplot(2,3,2)
-    elseif CON == 3
+    elseif CON == 2
         subplot(2,3,5)
     end
     plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[4,4,1],statecmap{CON})
@@ -37,7 +37,7 @@ for CON = 1:2
     
     if CON == 1
         subplot(2,3,3)
-    elseif CON == 3
+    elseif CON == 2
         subplot(2,3,6)
     end
     plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[4,1,4],statecmap{CON})

@@ -40,21 +40,16 @@ for CON = 1:2
         Pbase = XBase;
         if CON == 1 % Hyperdirect
             Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*ck_1(CON,i)); %
-        elseif CON == 2 % Striatal-pallidal
-            Pbase.A{2}(3,2) = log(exp(Pbase.A{2}(3,2))*ck_1(CON,i)); %
-        elseif CON == 3 % Pallidal-subthalamo
+        elseif CON == 2 % Pallidal-subthalamo
             Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*ck_1(CON,i)); %
-        elseif CON == 4 % Subthalamo-pallidal
-            Pbase.A{1}(3,4) = log(exp(Pbase.A{1}(3,4))*ck_1(CON,i)); %
         end
         [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData(R,m,uc,Pbase,0,1);
         feat{i} = feat_sim;
         xsim{i} = xsim_gl;
         
-        
         disp([CON i])
     end
-    rootan = [Rorg.rootn 'data\' Rorg.out.oldtag '\ConnectionSweep'];
+    rootan = [Rorg.rootn 'data\' Rorg.out.tag '\ConnectionSweep'];
     mkdir(rootan)
     
     save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext '.mat'],'feat')

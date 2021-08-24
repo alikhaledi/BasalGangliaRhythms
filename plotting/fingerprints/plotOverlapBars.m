@@ -6,7 +6,7 @@ labnames = {'M2/STN','STR/STN','GPe/STN','STN/STN','GPi/STN','Thal./STN'};
 titname = {'Change in burst overlap for low beta','Change in burst overlap for high beta'};
 
     
-for CON = [1 3]
+for CON = 1:2
     for state = 1:3
         for ch = 1:6
             for band = 1:2

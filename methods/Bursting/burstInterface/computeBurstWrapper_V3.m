@@ -1,11 +1,11 @@
 function [R,BB] = computeBurstWrapper_V3(R)
-rootan = [R.rootn 'data\' R.out.oldtag '\ConnectionSweep'];
+rootan = [R.rootn 'data\' R.out.tag '\ConnectionSweep'];
 close all;
 % Overlap subplots
 figure(101)
 ha =   tight_subplot(3,3,0.05);
 delete(ha([2 4 6 8]))
-splist = [1 0 2];
+splist = [1 2]; %subplot list
 
 scmap = brewermap(4,'Set1');
 statecmap{1} = [0 0 0; scmap(1:2,:)];
@@ -106,7 +106,7 @@ for CON = 1:2
     figure(100)
     if CON == 1
         cmap = brewermap(128,'RdBu');
-    elseif CON == 3
+    elseif CON == 2
         cmap = brewermap(128,'*PRGn');
     end
     
