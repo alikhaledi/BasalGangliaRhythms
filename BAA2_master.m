@@ -26,24 +26,26 @@ R = basalGangliaRhythms_AddPaths();
 % Add configurations/settings to R
 R = setupBasalGangliaModel(R);
 
-%% Figure (1): Model fit and comparison with data
+% Figure (1): Model fit and comparison with data
 simlength = 256; % Set simulation length
 modID = 10; % This is the index of the winning model
 BAA_plotModelFit(R,modID,simlength);
 plotDataComparison % plots the time series in figure 1A and C
 
-%% Perform simulations with connectivity Sweep
+% Perform simulations with connectivity Sweep
 BAA_sim_ConnectionSweep_v2(R,modID,100,2)
 
-%% Figure (2): Sweep over connections and plot spectra
+% Figure (2): Sweep over connections and plot spectra
 R = plotSweepSpectraBasic(R); % This doesnt just plot but also works out the vector Krange for spread of viable connections
-%% Computes Bursts
+
+% Computes Bursts from Connection Sweep Simulations
 computeBurstWrapper_V3(R)
 
-%% Now do stimulation
+% Model of Stimulation
 BAA_sim_phaseLockedStim(R)
 peValidation
-%% Now do analysis of Stim
+
+% State matching analysis of stimulations
 computeStimAnalysis(R,0)
 computeStimAnalysis_sweep(R,0)
 

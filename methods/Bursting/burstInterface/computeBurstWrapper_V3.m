@@ -6,19 +6,14 @@ figure(101)
 ha =   tight_subplot(3,3,0.05);
 delete(ha([2 4 6 8]))
 splist = [1 0 2];
-% figure(102)
-% hb =   tight_subplot(3,3,0.05);
-% delete(hb([2 4 6 8]))
-%
+
 scmap = brewermap(4,'Set1');
 statecmap{1} = [0 0 0; scmap(1:2,:)];
-statecmap{3} = [0 0 0; scmap(3:4,:)];
+statecmap{2} = [0 0 0; scmap(3:4,:)];
 
-
-conname = {'HD','','PS'};
-R.statename = {'Fitted','HD-Down','HD-Up';'' '' ''; 'Fitted','PS-Down','PS-Up'};
+R.statename = {'Fitted','HD-Down','HD-Up'; 'Fitted','PS-Down','PS-Up'};
 Xpair = [1 4];
-for CON = [1 3]
+for CON = 1:2
     BB = [];
     load([rootan '\BB_' R.out.tag '_DiscreteData.mat'],'dataSelect','dataProperties')
     
@@ -81,11 +76,10 @@ for CON = [1 3]
         end
     end
     
-    
     % figure(300+CON)
     % bplotBurstLength(segA,segL,conname{CON},statecmap{CON},CON)
     % set(gcf,'Position',[680   159   901   819])
-    %
+
     figure(431);
     subplot(2,1,splist(CON))
     cmap = statecmap{CON};
@@ -145,13 +139,5 @@ for i = 1:numel(burstSelInds)
             flag = 0;
         end
     end
-    
     burstSelIndsPerm{i} = pinds;
 end
-
-
-
-
-
-a = 1;
-% end

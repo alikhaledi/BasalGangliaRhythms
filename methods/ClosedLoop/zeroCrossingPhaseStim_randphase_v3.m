@@ -1,4 +1,4 @@
-function [uexs,R,phi] = highFreqStim_v1(uexs,R,tstep,xstore,dt,uvar,phi)
+function [uexs,R,phi] = zeroCrossingPhaseStim_randphase_v3(uexs,R,tstep,xstore,dt,uvar,phi)
 if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     if R.IntP.phaseStim.eps == 0
         BU = xstore(R.obs.outstates(R.IntP.phaseStim.sensStm(1)),:);
@@ -21,9 +21,11 @@ if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     % Hilbert
     BUBp = padarray(BUB,[0 1/dt]); % pad again
     BEnv = abs(hilbert(BUBp));
+    BPhi = angle(hilbert(BUBp));
     
     % Remove Padding
     BEnv([1:1/dt end-1/dt:end]) = [];
+    BPhi([1:1/dt end-1/dt:end]) = [];
     
     % BEnv = smooth(abs(BUB),200); %abs(HB); %smooth(abs(HB),100);
     if R.IntP.phaseStim.eps == 0
@@ -34,24 +36,27 @@ if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     %  ts = 0:dt:3;
     A = (R.IntP.phaseStim.stimAmp*uvar); % setup the amplitude of the stim
     % Check the Envelope for gating
-    % This means the envelope must be suprathreshold for:
-    % t-delay-minBS:t-delay
     gate = all(BEnv(end-fix(R.IntP.phaseStim.trackdelay/dt)-fix(R.IntP.phaseStim.minBS/dt):end-fix(R.IntP.phaseStim.trackdelay/dt)) > R.IntP.phaseStim.eps);
-%     instfreq = 18; %median(1./(diff(unwrap(BPhi(end-fix(R.IntP.phaseStim.trackdelay/dt)-fix(R.IntP.phaseStim.minBS/dt)-1:end-fix(R.IntP.phaseStim.trackdelay/dt))))));
+    instfreq = 18; %median(1./(diff(unwrap(BPhi(end-fix(R.IntP.phaseStim.trackdelay/dt)-fix(R.IntP.phaseStim.minBS/dt)-1:end-fix(R.IntP.phaseStim.trackdelay/dt))))));
     brake = ~all(uexs(tstep-(R.IntP.phaseStim.stimGap/dt):tstep,R.IntP.phaseStim.sensStm(2))==0); % If within
-    % This sets up the stim period and ensures breaks
-    tv = tstep:tstep+(R.IntP.phaseStim.stimPeriod/dt);
+    % This sets up the stim period and ensures breaks. Stimulation
+    % is delivered:
     if gate && ~brake
-        uexs(tv,R.IntP.phaseStim.sensStm(2)) = 1e-32;
+        uexs(tstep:tstep+(R.IntP.phaseStim.stimPeriod/dt),R.IntP.phaseStim.sensStm(2)) = 1e-32;
     end
     off = uexs(tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) == 0;
     
-    if  ~off; %  && gate
-        sv = tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt);
-        phiPred = 2*pi*180.*linspace(0,size(sv,2)*dt,size(sv,2));
-        stim = sin(phiPred).*A;
-        uexs(sv,R.IntP.phaseStim.sensStm(2)) = stim;
-        phi(sv,R.IntP.phaseStim.sensStm(2)) = phiPred;
+    if  ~off  %&& gate
+        zci = find(diff(sign(BUB))>1,1,'last'); % location of last positive zero crossing
+        zstep = (length(BUB)-zci); % location relative to curren time step
+        
+        % zstep*dt is the current time of the sinusoid relative to t = 0;
+        cph = zstep*dt;
+        phiPred = 2*pi*instfreq*(cph:dt:cph+R.IntP.phaseStim.stimlength)- pi/2;
+        
+        stim = sin(phiPred + R.IntP.phaseStim.phaseshift).*A;
+        uexs(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = stim;
+        phi(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = phiPred;
     end
 end
 % if brake
@@ -59,7 +64,7 @@ end
 %     phi(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = 0;
 % end
 
-demo = 1;
+demo = 0;
 % Demo only
 % These are for demo only
 if demo
@@ -91,6 +96,6 @@ if demo
     yyaxis left; plot(BAEnv); hold on;plot(BA); plot(BUB); yyaxis right; plot(uexs(:,R.IntP.phaseStim.sensStm(2)))
     yyaxis left; plot([0 numel(uexs)],[R.IntP.phaseStim.eps R.IntP.phaseStim.eps],'k--')
     xlim([tstep-2e3 tstep+2e3])
-    ylim([-1.5 1.5]*1e-7);
+    ylim([-1.5 1.5]*1e-5);
     drawnow
 end
