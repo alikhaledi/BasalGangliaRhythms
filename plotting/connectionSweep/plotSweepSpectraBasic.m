@@ -24,6 +24,7 @@ for CON = [1 3]
     elseif CON == 3
         subplot(2,3,4)
     end
+    
     a = plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[1,1,1],statecmap{CON})
     title('M2 power')
         ylim([1e-15 5e-14])

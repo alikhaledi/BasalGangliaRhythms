@@ -286,7 +286,7 @@ for condsel = 1:numel(R.condnames)
         %% Stim set
         if tstep >((R.obs.brn)/dt) && (rem(tstep,R.IntP.phaseStim.upperiod/dt) == 0)
             if R.IntP.phaseStim.switch
-                 [uexs,R] = zeroCrossingPhaseStim_v3(uexs,R,tstep,xstore,dt,std(us(:,R.IntP.phaseStim.sensStm(2))));
+                 [uexs,R] = R.IntP.phaseStim.stimFx(uexs,R,tstep,xstore,dt,std(us(:,R.IntP.phaseStim.sensStm(2))));
             end
         end
 

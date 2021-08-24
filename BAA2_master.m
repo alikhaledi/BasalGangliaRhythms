@@ -44,8 +44,8 @@ computeBurstWrapper_V3(R)
 BAA_sim_phaseLockedStim(R)
 peValidation
 %% Now do analysis of Stim
-computeStimAnalysis(R,1)
-computeStimAnalysis_sweep(R,1)
+computeStimAnalysis(R,0)
+computeStimAnalysis_sweep(R,0)
 
 ARCcartoon % plots stim diagram
 %% Compare the connectivity matrices

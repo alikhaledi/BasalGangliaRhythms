@@ -16,17 +16,32 @@ for SScomb = 3; %1:2
         % Stimualating M2
         senssite = 4; % STN
         stimsite = 1; % M2
+        stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimM2_sensSTN';
     elseif SScomb == 2
         % Stimulating  STN
         senssite = 1; % M2
         stimsite = 4; % STN
+        stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimSTN_sensM2';
     elseif SScomb == 3
         % Stimulating  STN
         senssite = 3; % GPe
         stimsite = 1; % STN
-        stim_sens = 'stimSTN_sensGPe';        
+        stimFx = @zeroCrossingPhaseStim_v3;
+        stim_sens = 'stimSTN_sensGPe';
+    elseif    SScomb == 4
+        % Stimualating M2
+        senssite = 4; % STN
+        stimsite = 1; % M2
+        stimFx = @highFreqStim_v1;
+        stim_sens = 'stimM2_sensSTN';
+    elseif SScomb == 5
+        % Stimulating  STN
+        senssite = 1; % M2
+        stimsite = 4; % STN
+        stimFx = @highFreqStim_v1;
+        stim_sens = 'stimSTN_sensM2';
     end
     R.IntP.phaseStim.sensStm = [senssite stimsite];
     
@@ -34,21 +49,21 @@ for SScomb = 3; %1:2
     ck_1(1,:) = [1 logspace(-1,log10(5),34)];
     ck_1(3,:) = [1 logspace(-1,log10(1.90),34)];
     
-%     ck_1(1,:) = [1 ck_1_org(1,[2 31])];
-%     ck_1(3,:) = [1 ck_1_org(3,[2 31])];
+    %     ck_1(1,:) = [1 ck_1_org(1,[2 31])];
+    %     ck_1(3,:) = [1 ck_1_org(3,[2 31])];
     
-%     % Simulation Coniditions
+    %     % Simulation Coniditions
     R.obs.csd.df = 0.5;
     R = setSimTime(R,128);
     
     % Trans Options
-%     R.obs.SimOrd = 10;
+    %     R.obs.SimOrd = 10;
     R.obs.trans.norm = 0;
     R.obs.gainmeth = {};
     
     % Observe Middle layers
     R.obs.outstates(1) = 3; % change to middle layer
-    m.outstates{1} = [0 0 1 0 0 0 0 0]; 
+    m.outstates{1} = [0 0 1 0 0 0 0 0];
     
     % Give all timeseries the same input - makes comparable
     rng(5453)
@@ -64,10 +79,10 @@ for SScomb = 3; %1:2
     
     
     %% Loop through Connections
-    for CON = [1 3]
+    for CON = 3; %[1 3]
         feat_sim_save = {};
         xsim_ip = {};
-        for state = 1:size(ck_1,2)
+        for state = 2:size(ck_1,2)
             %% Setup Base Model
             Pbase = XBase;
             if CON == 1 % Hyperdirect
@@ -86,18 +101,20 @@ for SScomb = 3; %1:2
             [~,~,feat_sim_base{1},xsim_gl,xsim_ip_base{1},~,Rout] = computeSimData(R,m,uc_ip{1},Pbase,0);
             
             % Work out the threshold
-           [~,R] = zeroCrossingPhaseStim_v3([],R,0,xsim_gl{1},R.IntP.dt);
+            [~,R] = zeroCrossingPhaseStim_v3([],R,0,xsim_gl{1},R.IntP.dt);
             eps(state) =  R.IntP.phaseStim.eps;
             
             %% Do Stimulation
             R.IntP.phaseStim.switch = 1;
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
-            parfor p = 1:numel(phaseShift)
+            %             parfor p = 1:numel(phaseShift)
+            for p = 1:numel(phaseShift)
+                
                 Rpar = R;
                 % Modulate the phase
                 Rpar.IntP.phaseStim.phaseshift = phaseShift(p);
-                
+                Rpar.IntP.phaseStim.stimFx = stimFx;
                 % Simulate with Stimulation
                 [~,~,feat_sim_stim{p},~,xsim_ip_stim{p},~,Rpar]  = computeSimData(Rpar,m,uc_ip{1},Pbase,0);
                 uexs = load([Rpar.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp_' sprintf('%3.f',1000*Rpar.IntP.phaseStim.phaseshift)],'uexs');

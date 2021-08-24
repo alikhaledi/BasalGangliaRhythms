@@ -77,7 +77,7 @@ R.IntP.getNoise = 0;
 
 %% Loop through Connections
 m = m;
-for CON = [1 3]
+for CON = 3
     feat = {};
     xsim = {};
     parfor i = 1:size(ck_1,2)
