@@ -8,7 +8,8 @@ Rorg.chloc_name = Rorg.chsim_name; % Ensure sim names match to output names
 % Call the simulator
 [R,m,permMod,xsimMod] = getSimModelData_v3(Rorg,modID,simtime,1);
 % Save for later use (avoids recalling simulator)
-save([Rorg.rootn 'data\ModelFit\SimModelData_M10.mat'],'R','m','permMod')
+mkdir([Rorg.rootn 'data\modelfit'])
+save([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 
 
 close all;

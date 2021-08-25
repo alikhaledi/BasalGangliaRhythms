@@ -1,6 +1,6 @@
 function R = plotSweepSpectraBasic(R)
 close all
-rootan = [R.rootn 'data\' R.out.tag '\ConnectionSweep'];
+rootan = [R.rootn 'data\ConnectionSweep'];
 
 R.CONnames = {'M2 -> STN','GPe -| STN'};
 R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% STN->GPe'};

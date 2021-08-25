@@ -1,7 +1,7 @@
 function [R] = BAA_sim_ConnectionSweep_v3(Rorg)
 
 % MODID
-load([Rorg.rootn 'data\ModelFit\SimModelData_M10.mat'],'R','m','permMod')
+load([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
 pause(1)
 
@@ -49,7 +49,7 @@ for CON = 1:2
         
         disp([CON i])
     end
-    rootan = [Rorg.rootn 'data\' Rorg.out.tag '\ConnectionSweep'];
+    rootan = [Rorg.rootn 'data\ConnectionSweep'];
     mkdir(rootan)
     
     save([rootan '\BB_' Rorg.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext '.mat'],'feat')

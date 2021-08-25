@@ -20,7 +20,12 @@ end
 xlim([20 25])
 
 % Simulated Data
-load([ R.rootn '\data\rat_InDirect_ModelComp\ConnectionSweep\BB_InDrt_ModCompRev2_ConnectionSweep_CON_1_xsim_F1.mat'],'xsim')
+try
+    load([ R.rootn '\data\rat_InDirect_ModelComp\ConnectionSweep\BB_InDrt_ModCompRev2_ConnectionSweep_CON_1_xsim_F1.mat'],'xsim')
+catch
+    warning('You need to simulate some data first!')
+    return
+end
 % load([ R.rootn '\data\Storage\L6_lesion_rat_020317.mat'])
 t = linspace(0,size(xsim{1}{1},2)/2000,size(xsim{1}{1},2));
 X = xsim{1}{1}(1:4,:);

@@ -61,7 +61,7 @@ end
 %     phi(tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) = 0;
 % end
 
-demo = 1;
+demo = 0;
 % Demo only
 % These are for demo only
 if demo

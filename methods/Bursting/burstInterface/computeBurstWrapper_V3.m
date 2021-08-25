@@ -1,5 +1,5 @@
 function [R,BB] = computeBurstWrapper_V3(R)
-rootan = [R.rootn 'data\' R.out.tag '\ConnectionSweep'];
+rootan = [R.rootn 'data\ConnectionSweep'];
 close all;
 % Overlap subplots
 figure(101)

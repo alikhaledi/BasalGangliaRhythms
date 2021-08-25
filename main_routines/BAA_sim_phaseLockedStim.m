@@ -6,11 +6,11 @@ function [R] = BAA_sim_phaseLockedStim(Rorg)
 % save([Rorg.rootn 'data\ModelFit\SimModelData.mat'],'R','m','permMod')
 
 % OR Load it in:
-load([Rorg.rootn 'data\ModelFit\SimModelData_M10.mat'],'R','m','permMod')
+load([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 R.rootn = Rorg.rootn;
 R.filepathn = Rorg.filepathn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-for SScomb = 1:5
+for SScomb = 4:5
     %% Define stimulation conditions
     if SScomb == 1
         % Stimualating M2
@@ -52,7 +52,7 @@ for SScomb = 1:5
     
     %% Connection Sets
     ck_1(1,:) = [1 logspace(-1,log10(5),34)];
-    ck_1(3,:) = [1 logspace(-1,log10(1.90),34)];
+    ck_1(2,:) = [1 logspace(-1,log10(1.90),34)];
     
     %     ck_1(1,:) = [1 ck_1_org(1,[2 31])];
     %     ck_1(3,:) = [1 ck_1_org(3,[2 31])];
@@ -80,19 +80,23 @@ for SScomb = 1:5
     % Phase To be Tested
     R.IntP.intFx = @spm_fx_compile_120319_stim;
     
+    if phflag
     phaseShift = linspace(0,2.*pi,13); %13% List of phases to be tested
     phaseShift = phaseShift(1:12); %12
+    else
+        phaseShift = 0;
+    end
     
     %% Loop through Connections
-    for CON = 1; %:2
+    for CON = 1:2
         feat_sim_save = {};
         xsim_ip = {};
-        for state = 1; %2:size(ck_1,2)
+        for state = 1; %:size(ck_1,2)
             %% Setup Base Model
             Pbase = XBase;
             if CON == 1 % Hyperdirect
                 Pbase.A{1}(4,1) = log(exp(Pbase.A{1}(4,1))*ck_1(CON,state)); %
-            elseif CON == 3 % Pallidal-subthalamo
+            elseif CON == 2 % Pallidal-subthalamo
                 Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*ck_1(CON,state)); %
             end
             
@@ -114,7 +118,7 @@ for SScomb = 1:5
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
             %             parfor p = 1:numel(phaseShift)
-            parfor p = 1:numel(phaseShift)
+            for p = 1:numel(phaseShift)
                 
                 Rpar = R;
                 % Modulate the phase
@@ -122,17 +126,17 @@ for SScomb = 1:5
                 Rpar.IntP.phaseStim.stimFx = stimFx;
                 % Simulate with Stimulation
                 [~,~,feat_sim_stim{p},~,xsim_ip_stim{p},~,Rpar]  = computeSimData(Rpar,m,uc_ip{1},Pbase,0);
-                uexs = load([Rpar.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp_' sprintf('%3.f',1000*Rpar.IntP.phaseStim.phaseshift)],'uexs');
+                uexs = load([Rpar.rootn 'data\phaseStimSave\stim_tmp_' sprintf('%3.f',1000*Rpar.IntP.phaseStim.phaseshift)],'uexs');
                 pU{p} = uexs.uexs(Rpar.IntP.phaseStim.sensStm(2),round(Rpar.obs.brn*(1/R.IntP.dt))+1:end);
                 disp([CON state p])
             end
-            rmdir([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\'],'s')
+            rmdir([R.rootn 'data\phaseStimSave\'],'s')
             % Create save version
             feat_sim_save{1,state} = feat_sim_base; feat_sim_save{2,state} = feat_sim_stim;
             xsim_ip{1,state} = xsim_ip_base; xsim_ip{2,state} = xsim_ip_stim;
             pU_save{state} = pU;
         end
-        rootan = [Rorg.rootn 'data\' Rorg.out.oldtag '\phaseLockedStim'];
+        rootan = [Rorg.rootn 'data\phaseLockedStim'];
         mkdir(rootan)
         
         save([rootan '\BB_' Rorg.out.tag '_phaseLockedStim_CON_' num2str(CON) '_feat' num2str(SScomb) '.mat'],'feat_sim_save')

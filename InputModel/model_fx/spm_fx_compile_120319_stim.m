@@ -300,8 +300,8 @@ for condsel = 1:numel(R.condnames)
     % xint= spm_unvec(x,M.x);
 end
 
-mkdir([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\'])
-save([R.rootn 'data\rat_InDirect_ModelComp\phaseStimSave\stim_tmp_' sprintf('%3.f',1000*R.IntP.phaseStim.phaseshift)],'uexs')
+mkdir([R.rootn 'data\phaseStimSave\'])
+save([R.rootn 'data\phaseStimSave\stim_tmp_' sprintf('%3.f',1000*R.IntP.phaseStim.phaseshift)],'uexs')
 if wflag == 1
     xstore_cond{condsel} = NaN;
 end
