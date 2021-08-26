@@ -1,4 +1,5 @@
 function [R] = BAA_sim_phaseLockedStim(Rorg)
+close all
 ip = 0;
 % Comopute simulations by sweeping across data
 % [R,m,permMod] = getSimModelData_v3(Rorg,modID,simtime);
@@ -10,7 +11,7 @@ load([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 R.rootn = Rorg.rootn;
 R.filepathn = Rorg.filepathn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-for SScomb = [1 9]
+for SScomb =1:9
     %% Define stimulation conditions
     if SScomb == 1
         % Stimualating M2
@@ -19,6 +20,9 @@ for SScomb = [1 9]
         stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimM2_sensSTN';
         phflag = 1;
+        % Setup stim parameterss
+        R = typeIstimPars_v3(R);
+        
     elseif SScomb == 2
         % Stimulating  STN
         senssite = 1; % M2
@@ -26,55 +30,66 @@ for SScomb = [1 9]
         stimFx = @zeroCrossingPhaseStim_v3;
         stim_sens = 'stimSTN_sensM2';
         phflag = 1;
+        % Setup stim parameterss
+        R = typeIstimPars_v3(R);
+        
     elseif SScomb == 3
-        % Stimulating  STN
-        senssite = 3; % GPe
-        stimsite = 1; % STN
-        stimFx = @zeroCrossingPhaseStim_v3;
-        stim_sens = 'stimSTN_sensGPe';
-        phflag = 1;
+        % Stimualating M2
+        senssite = 4; % STN
+        stimsite = 1; % M2
+        stimFx = @lowFreqStim_v1;
+        stim_sens = 'stimM2_sensSTN';
+        phflag = 0;
+        R = typeIIIstimPars_v3(R);
+        
     elseif SScomb == 4
-        % Stimualating M2
-        senssite = 4; % STN
-        stimsite = 1; % M2
-        stimFx = @highFreqStim_pulse_v1;
-        stim_sens = 'stimM2_sensSTN';
+        % Stimulating  STN
+        senssite = 1; % M2
+        stimsite = 4; % STN
+        stimFx = @lowFreqStim_v1;
+        stim_sens = 'stimSTN_sensM2';
         phflag = 0;
+        R = typeIIIstimPars_v3(R);        
+        
     elseif SScomb == 5
+        % Stimualating M2
+        senssite = 4; % STN
+        stimsite = 1; % M2
+        stimFx = @highFreqStim_pulse_v1;
+        stim_sens = 'stimM2_sensSTN';
+        phflag = 0;
+        R = typeIIIstimPars_v3(R);
+        R.IntP.phaseStim.stimAmp = 20;
+    elseif SScomb == 6
         % Stimulating  STN
         senssite = 1; % M2
         stimsite = 4; % STN
         stimFx = @highFreqStim_pulse_v1;
         stim_sens = 'stimSTN_sensM2';
         phflag = 0;
-    elseif SScomb == 6
-        % Stimualating M2
-        senssite = 4; % STN
-        stimsite = 1; % M2
-        stimFx = @highFreqStim_v1;
-        stim_sens = 'stimM2_sensSTN';
-        phflag = 0;
+        R = typeIIIstimPars_v3(R);
+        R.IntP.phaseStim.stimAmp = 20;
+        
     elseif SScomb == 7
+        % Stimualating M2
+        senssite = 4; % STN
+        stimsite = 1; % M2
+        stimFx = @highFreqStim_v1;
+        stim_sens = 'stimM2_sensSTN';
+        phflag = 0;
+        R = typeIIIstimPars_v3(R);
+        R.IntP.phaseStim.stimAmp = 20;
+        
+    elseif SScomb == 8
         % Stimulating  STN
         senssite = 1; % M2
         stimsite = 4; % STN
         stimFx = @highFreqStim_v1;
         stim_sens = 'stimSTN_sensM2';
         phflag = 0;
-    elseif SScomb == 8
-        % Stimualating M2
-        senssite = 4; % STN
-        stimsite = 1; % M2
-        stimFx = @lowFreqStim_v1;
-        stim_sens = 'stimM2_sensSTN';
-        phflag = 0;
-    elseif SScomb == 9
-        % Stimulating  STN
-        senssite = 1; % M2
-        stimsite = 4; % STN
-        stimFx = @lowFreqStim_v1;
-        stim_sens = 'stimSTN_sensM2';
-        phflag = 0;
+        R = typeIIIstimPars_v3(R);
+        R.IntP.phaseStim.stimAmp = 20;
+        
     end
     R.IntP.phaseStim.sensStm = [senssite stimsite];
     
@@ -87,7 +102,7 @@ for SScomb = [1 9]
     
     %     % Simulation Coniditions
     R.obs.csd.df = 0.5;
-    R = setSimTime(R,128);
+    R = setSimTime(R,32);
     
     % Trans Options
     %     R.obs.SimOrd = 10;
@@ -111,15 +126,15 @@ for SScomb = [1 9]
     if phflag
         phaseShift = linspace(0,2.*pi,13); %13% List of phases to be tested
         phaseShift = phaseShift(1:12); %12
-    else
+        elsegith
         phaseShift = 0;
     end
     
     %% Loop through Connections
-    for CON = 1; %:2
+    for CON = 1:2
         feat_sim_save = {};
         xsim_ip = {};
-        for state = 1; %:size(ck_1,2)
+        for state = 1:size(ck_1,2)
             %% Setup Base Model
             Pbase = XBase;
             if CON == 1 % Hyperdirect
@@ -128,16 +143,16 @@ for SScomb = [1 9]
                 Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*ck_1(CON,state)); %
             end
             
-            % Setup stim parameterss
-            R = typeIstimPars_v3(R);
             
             % Simulate Base Model
             uc_ip{1} = uc;
             R.IntP.phaseStim.switch = 0 ;
             R.IntP.phaseStim.phaseshift = 0;
+            R.frqz = 2:0.2:150;
+            R.IntP.compFx = @nullComp;
             [~,~,feat_sim_base{1},xsim_gl,xsim_ip_base{1},~,Rout] = computeSimData(R,m,uc_ip{1},Pbase,0);
-            plot(R.frqz,squeeze(feat_sim_base{1}(1,4,4,1,:)))
             % Work out the threshold
+            R.IntP.phaseStim.eps = 0;
             [~,R] = zeroCrossingPhaseStim_v3([],R,0,xsim_gl{1},R.IntP.dt);
             eps(state) =  R.IntP.phaseStim.eps;
             
@@ -146,7 +161,7 @@ for SScomb = [1 9]
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
             %             parfor p = 1:numel(phaseShift)
-            for p = 1; %:numel(phaseShift)
+            for p = 1:numel(phaseShift)
                 
                 Rpar = R;
                 % Modulate the phase
@@ -165,12 +180,21 @@ for SScomb = [1 9]
             pU_save{state} = pU;
             
             ip = ip+1;
-            figure(100)
-            subplot(2,1,ip)
-            plot(R.frqz,squeeze(feat_sim_save{2,1}{1}(1,4,4,1,:)))
-            hold on
-            plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
-            
+%             figure(100)
+%             subplot(2,2,ip)
+%             plot(R.frqz,squeeze(feat_sim_save{2,1}{1}(1,4,4,1,:)))
+%             hold on
+%             plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
+%             set(gca, 'YScale', 'log');
+%             figure(200)
+%             subplot(4,1,ip)
+%             plot( pU_save{state}{1}' )
+%             
+%             figure(300)
+%             subplot(4,1,ip)
+%             plot([0 Rout.IntP.tvec_obs],xsim_ip{1,state}{1}{1}(4,:)' )
+%             hold on
+%             plot([0 Rout.IntP.tvec_obs],xsim_ip{2,state}{1}{1}(4,:)' )
         end
         
         rootan = [Rorg.rootn 'data\phaseLockedStim'];

@@ -44,7 +44,9 @@ computeBurstWrapper_V3(R)
 % Model of Stimulation
 BAA_sim_phaseLockedStim(R)
 peValidation
-
+% Plot stim types
+ BAA_plotStimTypeOutcomes(R)
+ 
 % State matching analysis of stimulations
 computeStimAnalysis(R,0)
 computeStimAnalysis_sweep(R,0)

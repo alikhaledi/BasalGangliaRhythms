@@ -48,7 +48,7 @@ if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     
     if  ~off; %  && gate
         sv = tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt);
-        phiPred = 2*pi*180.*linspace(0,size(sv,2)*dt,size(sv,2));
+        phiPred = 2*pi*130.*linspace(0,size(sv,2)*dt,size(sv,2));
         stim = sin(phiPred).*A;
         uexs(sv,R.IntP.phaseStim.sensStm(2)) = stim;
         phi(sv,R.IntP.phaseStim.sensStm(2)) = phiPred;
