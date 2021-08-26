@@ -1,4 +1,4 @@
-function [uexs,R,phi] = highFreqStim_pulse_v1(uexs,R,tstep,xstore,dt,uvar,phi)
+function [uexs,R,phi] = lowFreqStim_v1(uexs,R,tstep,xstore,dt,uvar,phi)
 if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     if R.IntP.phaseStim.eps == 0
         BU = xstore(R.obs.outstates(R.IntP.phaseStim.sensStm(1)),:);
@@ -46,12 +46,10 @@ if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     end
     off = uexs(tstep+fix(R.IntP.phaseStim.stimlength/dt),R.IntP.phaseStim.sensStm(2)) == 0;
     
-    if  ~off; % && gate
+    if  ~off; %  && gate
         sv = tstep:tstep+fix(R.IntP.phaseStim.stimlength/dt);
-        phiPred = 2*pi*120.*linspace(0,size(sv,2)*dt,size(sv,2));
-        zci = find(diff(sign(sin(phiPred)))>1);
-        stim = zeros(size(sv));
-        stim(zci) = A;
+        phiPred = 2*pi*18.*linspace(0,size(sv,2)*dt,size(sv,2));
+        stim = sin(phiPred).*A;
         uexs(sv,R.IntP.phaseStim.sensStm(2)) = stim;
         phi(sv,R.IntP.phaseStim.sensStm(2)) = phiPred;
     end
