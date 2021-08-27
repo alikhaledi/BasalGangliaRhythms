@@ -18,8 +18,7 @@ for SScomb = 1:8
 
         baseFeat = squeeze(feat_sim_save{1,state}{1}(1,4,4,1,:));
         plot(Rout.frqz,baseFeat,'k'); hold on
-        bandInds = find(Rorg.frqz>=14 & Rorg.frqz<= 30);
-        bp_base = bpSpec(Rorg.frqz,baseFeat,[14 21]);
+        bp_base = bpSpec(Rout.frqz,baseFeat,[14 21]);
         
         state = 1; %:size(ck_1,2)
         deltaBP = []; phaseFeat = [];
@@ -33,8 +32,10 @@ for SScomb = 1:8
                         [~,amp] = max(deltaBP);
             plot(Rout.frqz,phaseFeat(:,supp),'b')
             plot(Rout.frqz,phaseFeat(:,amp),'r')
+            legend({'0' num2str(deltaBP(supp)) num2str(deltaBP(amp))})
         else
             plot(Rout.frqz,phaseFeat,'g')
+            legend({'0' num2str(deltaBP(1)) })
         end
         xlabel('Hz'); ylabel('Power'); xlim([2 48])
         % put in titles
