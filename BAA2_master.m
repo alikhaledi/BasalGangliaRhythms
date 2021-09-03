@@ -40,9 +40,11 @@ R = plotSweepSpectraBasic(R); % This doesnt just plot but also works out the vec
 
 % Computes Bursts from Connection Sweep Simulations
 computeBurstWrapper_V3(R)
+computeOutOfBurstWrapper_V3(R); % compute spectral fingerprints without burst definition 
 
 % Model of Stimulation
 BAA_sim_phaseLockedStim(R)
+BAA_sim_phaseLockedStim_SICompEps(R)
 peValidation
 % Plot stim types
  BAA_plotStimTypeOutcomes(R)

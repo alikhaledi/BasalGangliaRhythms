@@ -25,9 +25,9 @@ for EpsN = 1:numel(EpsVec)
     phflag = 1;
     % Setup stim parameterss
     R = typeIstimPars_v3(R);
-    R.IntP.phaseStim.sensStm = [senssite stimsite]; 
-        R.IntP.phaseStim.epsthresh = EpsVec(EpsN); % Overwrite
-
+    R.IntP.phaseStim.sensStm = [senssite stimsite];
+    R.IntP.phaseStim.epsthresh = EpsVec(EpsN); % Overwrite
+    
     %% Connection Sets
     ck_1(1,:) = [1 logspace(-1,log10(5),34)];
     ck_1(2,:) = [1 logspace(-1,log10(1.90),34)];
