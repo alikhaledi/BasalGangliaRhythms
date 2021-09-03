@@ -25,9 +25,11 @@ for EpsN = 1:numel(EpsVec)
     phflag = 1;
     % Setup stim parameterss
     R = typeIstimPars_v3(R);
-    R.IntP.phaseStim.sensStm = [senssite stimsite]; 
-        R.IntP.phaseStim.epsthresh = EpsVec(EpsN); % Overwrite
-
+    R.IntP.phaseStim.sensStm = [senssite stimsite];
+    R.IntP.phaseStim.epsthresh = EpsVec(EpsN); % Overwrite
+    R.IntP.phaseStim.stimGap = 0.2;
+    R.IntP.phaseStim.stimperiod =1;
+    R.IntP.phaseStim.stimAmp = 1/2;
     %% Connection Sets
     ck_1(1,:) = [1 logspace(-1,log10(5),34)];
     ck_1(2,:) = [1 logspace(-1,log10(1.90),34)];
@@ -104,16 +106,32 @@ for EpsN = 1:numel(EpsVec)
     xsim_ip{1,EpsN} = xsim_ip_base; xsim_ip{2,EpsN} = xsim_ip_stim;
     pU_save{EpsN} = pU;
     
-    ip = ip+1;
-end
+        ip = ip+1;
 
-rootan = [Rorg.rootn 'data\phaseLockedStimEpsComp'];
-mkdir(rootan)
-
-save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_CON_' num2str(CON) '_feat' num2str(SScomb) '.mat'],'feat_sim_save')
-save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_CON_' num2str(CON) '_xsim' num2str(SScomb) '.mat'],'xsim_ip','-v7.3')
-save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_CON_' num2str(CON) '_Rout' num2str(SScomb) '.mat'],'Rout')
-save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_CON_' num2str(CON) '_pU_save' num2str(SScomb) '.mat'],'pU_save')
+%             figure(100)
+%             subplot(2,2,ip)
+%             plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
+%             hold on
+%             plot(R.frqz,squeeze(feat_sim_save{2,1}{6}(1,4,4,1,:)))
+%             set(gca, 'YScale', 'log');
+%             figure(200)
+%             subplot(4,1,ip)
+%             plot( pU_save{state}{1}' )
+%             
+%             figure(300)
+%             subplot(4,1,ip)
+%             plot([0 Rout.IntP.tvec_obs],xsim_ip{1,state}{1}{1}(4,:)' )
+%             hold on
+%             plot([0 Rout.IntP.tvec_obs],xsim_ip{2,state}{6}{1}(4,:)' )
+% 
+    
+    rootan = [Rorg.rootn 'data\phaseLockedStimEpsComp'];
+    mkdir(rootan)
+    
+    save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_EPS_' num2str(EpsN) '_feat' num2str(SScomb) '.mat'],'feat_sim_save')
+    save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_EPS_' num2str(EpsN) '_xsim' num2str(SScomb) '.mat'],'xsim_ip','-v7.3')
+    save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_EPS_' num2str(EpsN) '_Rout' num2str(SScomb) '.mat'],'Rout')
+    save([rootan '\BB_' Rorg.out.tag '_phaseLockedStimEpsComp_EPS_' num2str(EpsN) '_pU_save' num2str(SScomb) '.mat'],'pU_save')
 end
 
 
