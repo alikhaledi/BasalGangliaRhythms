@@ -126,7 +126,7 @@ for SScomb =1:9
     if phflag
         phaseShift = linspace(0,2.*pi,13); %13% List of phases to be tested
         phaseShift = phaseShift(1:12); %12
-        elsegith
+    else
         phaseShift = 0;
     end
     
@@ -161,7 +161,7 @@ for SScomb =1:9
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
             %             parfor p = 1:numel(phaseShift)
-            for p = 1:numel(phaseShift)
+            parfor p = 1:numel(phaseShift)
                 
                 Rpar = R;
                 % Modulate the phase
