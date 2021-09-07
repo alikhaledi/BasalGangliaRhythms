@@ -21,7 +21,7 @@ R.condnames = {'OFF'};
 % Spectral characteristics
 R.obs.csd.df = 0.5;
 R.obs.csd.reps = 32; %36; %96;
-
+ R.Bcond = 0;
 %% INTEGRATION
 % Main dynamics function
 R.IntP.intFx = @ABC_fx_compile_120319;

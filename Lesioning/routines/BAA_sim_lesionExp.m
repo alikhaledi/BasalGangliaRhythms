@@ -1,9 +1,9 @@
-function [R] = BAA_sim_lesionExp(Rorg,modID,simtime,fresh)
+function [R] = BAA_sim_lesionExp(Rorg,fresh)
 % Comopute simulations by sweeping across data
-[R,m,permMod,xsimMod{1}] = getSimModelData_v3(Rorg,modID,simtime);
+load([Rorg.path.rootn 'data\modelfit\SimModelData_M10.mat'],'Rout','m','permMod')
+R = Rout;
+warning('Loading Preloaded model, cant change simtime or model choice!!!')
 p = permMod{1}.par_rep{1};
-R = setSimTime(R,simtime); % This sets the simulatiomn time by modify R structure
-R.Bcond = -1; % No contrasting conditions
 
 % Plotting colors
 cmap = brewermap(128,'RdBu');
@@ -27,30 +27,30 @@ if fresh == 1
         if i~=1
             Pbase_i.A{AIJ{i}(1)}(AIJ{i}(2),AIJ{i}(3)) = -32; % Remove the ith connection
         end
-        parfor j = 1:size(condname,2)    % Setup the simulations
+       for j = 1; %:size(condname,2)    % Setup the simulations
             Pbase_ij = Pbase_i;
             if j~=1
                 Pbase_ij.A{AIJ{j}(1)}(AIJ{j}(2),AIJ{j}(3)) = -32; % Remove the jth connection
             end
-            [r2,~,feat_sim,dum,xsim_gl] = computeSimData_v2(R,m,uc,Pbase_ij,0); % Simulates the new model
+            [r2,~,feat_sim,dum,xsim_gl] = computeSimData_160620(R,m,uc,Pbase_ij,0); % Simulates the new model
             featSave{j,i} = feat_sim;
             % Find resulting power statistics of the simulated data (STN
             % beta
-            [powIJ_B(j,i),peakIJ_B(j,i),freqIJ_B(j,i)] = findSpectralStats(R.frqz,squeeze(feat_sim(1,4,4,1,:)),[14 30]);
-            [powIJ_B1(j,i),peakIJ_B1(j,i),freqIJ_B1(j,i)] = findSpectralStats(R.frqz,squeeze(feat_sim(1,4,4,1,:)),[14 21]);
-            [powIJ_B2(j,i),peakIJ_B2(j,i),freqIJ_B2(j,i)] = findSpectralStats(R.frqz,squeeze(feat_sim(1,4,4,1,:)),[21 30]);
+            [powIJ_B(j,i),peakIJ_B(j,i),freqIJ_B(j,i)] = findSpectralStats(R.frqz,squeeze(feat_sim{1}(1,4,4,1,:)),[14 30]);
+            [powIJ_B1(j,i),peakIJ_B1(j,i),freqIJ_B1(j,i)] = findSpectralStats(R.frqz,squeeze(feat_sim{1}(1,4,4,1,:)),[14 21]);
+            [powIJ_B2(j,i),peakIJ_B2(j,i),freqIJ_B2(j,i)] = findSpectralStats(R.frqz,squeeze(feat_sim{1}(1,4,4,1,:)),[21 30]);
             fitIJ(j,i) = r2;
             disp([i j])
         end
     end
-    rootan = [Rorg.rootn 'data\' Rorg.out.oldtag '\LesionData'];
+    rootan = [Rorg.path.rootn 'data\' Rorg.out.tag '\LesionData'];
     mkdir(rootan)
     save([rootan '\BAA_lesion'],'powIJ_B','peakIJ_B','freqIJ_B',...
         'powIJ_B1','peakIJ_B1','freqIJ_B1',...
         'powIJ_B2','peakIJ_B2','freqIJ_B2','condname',...
     'featSave')
 else
-    rootan = [Rorg.rootn 'data\' Rorg.out.oldtag '\LesionData'];
+    rootan = [Rorg.path.rootn 'data\' Rorg.out.tag '\LesionData'];
     load([rootan '\BAA_lesion'],'powIJ_B','peakIJ_B','freqIJ_B',...
         'powIJ_B1','peakIJ_B1','freqIJ_B1',...
         'powIJ_B2','peakIJ_B2','freqIJ_B2','condname')
@@ -86,7 +86,7 @@ for band = 1
     L = X(1,:);
     L(L>1e3) = NaN;
     b = bar(L);
-    [dum keyind] = min(abs(diag(X)-ckeypow),[],2);
+    [dum keyind] = min(abs(L-ckeypow'),[],2);
     b.CData = cmap(keyind,:);
     b.EdgeAlpha = 0; b.FaceColor = 'flat';
     a = gca; grid on; box off
@@ -97,7 +97,7 @@ for band = 1
     L = Y(1,:);
     L(L>1e3) = NaN;
     b = bar(L);
-    [dum keyind] = min(abs(diag(Y)-ckeyfrq),[],2);
+    [dum keyind] = min(abs(L-ckeyfrq'),[],2);
     b.CData = cmap(keyind,:);
     b.EdgeAlpha = 0; b.FaceColor = 'flat';
     a = gca; grid on; box off

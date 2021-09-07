@@ -8,8 +8,12 @@ R.condname = {'Fitted','1% M2->STN','150% M2->STN','Fitted','1% STN->GPe','150% 
 cmap1 = brewermap(40,'Reds');
 % cmap1(22,:) = [0 0 0];
 cmap2 = brewermap(40,'Blues');
+scmap = brewermap(4,'Set1');
+statecmap{1} = [0 0 0; scmap(1:2,:)];
+statecmap{3} = [0 0 0; scmap(3:4,:)];
+
 % cmap2(28,:) = [0 0 0];
-for CON = 1
+for CON = [1 3]
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat_F1.mat'])
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1_F1.mat'])
     figure(1)
@@ -18,27 +22,27 @@ for CON = 1
     elseif CON == 3
         subplot(4,3,7)
     end
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:1:35,[1,1,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:1:35,[1,1,1],statecmap{CON})
     title(R.CONnames{CON})
 %     ylim([1e-16 1e-13])
-    set(gca, 'YScale', 'log', 'XScale', 'log')
+%     set(gca, 'YScale', 'log', 'XScale', 'log')
     
     if CON == 1
         subplot(4,3,2)
     elseif CON == 3
         subplot(4,3,8)
     end
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,4,1])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,4,1],statecmap{CON})
     title(R.CONnames{CON})
 %     ylim([1e-16 1e-13])
-    set(gca, 'YScale', 'log', 'XScale', 'log')
+%     set(gca, 'YScale', 'log', 'XScale', 'log')
 
     if CON == 1
         subplot(4,3,3)
     elseif CON == 3
         subplot(4,3,9)
     end
-    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,1,4])
+    plotSweepSpectra(R.frqz,feat,feat{6},cmap1,{R.condname{[2 1 3]}}, [1 15 30],1:5:35,[4,1,4],statecmap{CON})
     title(R.CONnames{CON})
 %         ylim([1e-16 1e-11])
     

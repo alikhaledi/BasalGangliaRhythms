@@ -1,8 +1,7 @@
 function [R] = BAA_sim_ConnectionSweep_v2(Rorg,modID,simtime,HD)
 
 
-Rorg.out.dag = sprintf([Rorg.out.tag '_M%.0f'],modID);
-[R,m,p] = loadABCData_160620(Rorg);
+ [R,m,p] = dataUpdateFix(Rorg,modID);
 
 %% Connection Sets
 if HD == 1

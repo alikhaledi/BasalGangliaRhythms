@@ -1,15 +1,20 @@
 function [R] = BAA_plotModelFit(Rorg,modID,simtime)
 % Simulate the Base Model
-Rorg.obs.gainmeth = {'unitvar','boring'};
-Rorg.obs.trans.norm = 1; % Normalize the output spectra
-Rorg.obs.trans.gauss = 1; % Smooth with sum of 3 gaussians
-Rorg.obs.obsstates = [1:6]; % All 6 nodes are observed
-Rorg.chloc_name = Rorg.chsim_name; % Ensure sim names match to output names
+% Rorg.obs.gainmeth = {'unitvar','boring'};
+% Rorg.obs.trans.norm = 1; % Normalize the output spectra
+% Rorg.obs.trans.gauss = 1; % Smooth with sum of 3 gaussians
 % Call the simulator
-Rorg.out.dag = sprintf([Rorg.out.tag '_M%.0f'],modID);
-[Rout,m,p] = loadABCData_160620(Rorg);
-Rout.IntP.intFx = @ABC_fx_compile_120319; % update fx name
+ [Rout,m,p] = dataUpdateFix(Rorg,modID);
+ Rout.obs.obsstates = [1:6]; % All 6 nodes are observed
+Rout.chloc_name = Rout.chsim_name; % Ensure sim names match to output names
+% Rorg.out.dag = sprintf([Rorg.out.tag '_M%.0f'],modID);
+% [Rout,m,p] = loadABCData_160620(Rorg);
+%  Rout = dataUpdateFix(Rorg,modID)
+% Rout.IntP.intFx = @ABC_fx_compile_120319; % update fx name
 [modelError,pnew,feat_sim,xsims,xsims_gl,~,Rout] = computeSimData_160620(Rout,m,[],p,simtime,1);
+mkdir([Rorg.path.rootn 'data\modelfit'])
+permMod{1}.par_rep{1} = p;%
+save([Rorg.path.rootn 'data\modelfit\SimModelData_M10.mat'],'Rout','m','permMod')
 
 close all;
 X = xsims_gl{1};
