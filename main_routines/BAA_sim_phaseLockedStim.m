@@ -11,7 +11,7 @@ load([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 R.rootn = Rorg.rootn;
 R.filepathn = Rorg.filepathn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-for SScomb =1:9
+for SScomb =9; %
     %% Define stimulation conditions
     if SScomb == 1
         % Stimualating M2
@@ -89,7 +89,15 @@ for SScomb =1:9
         phflag = 0;
         R = typeIIIstimPars_v3(R);
         R.IntP.phaseStim.stimAmp = 20;
-        
+    elseif SScomb == 9
+        % Stimulating  STN
+        senssite = 4; % M2
+        stimsite = 4; % STN
+        stimFx = @highFreqStim_integrated_v1;
+        stim_sens = 'stimSTN_sensM2';
+        phflag = 0;
+        R = typeIIIstimPars_v3(R);
+        R.IntP.phaseStim.stimAmp = 20;
     end
     R.IntP.phaseStim.sensStm = [senssite stimsite];
     
@@ -134,7 +142,7 @@ for SScomb =1:9
     for CON = 1:2
         feat_sim_save = {};
         xsim_ip = {};
-        for state = 1:size(ck_1,2)
+        for state = 1; %:size(ck_1,2)
             %% Setup Base Model
             Pbase = XBase;
             if CON == 1 % Hyperdirect
@@ -161,7 +169,7 @@ for SScomb =1:9
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
             %             parfor p = 1:numel(phaseShift)
-            parfor p = 1:numel(phaseShift)
+            for p = 1:numel(phaseShift)
                 
                 Rpar = R;
                 % Modulate the phase
