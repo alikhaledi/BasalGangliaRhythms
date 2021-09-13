@@ -5,10 +5,11 @@ close all
 SStype = {'stimM2_sensSTN','stimSTN_sensM2','stimSTN_sensGPe','stimM2_sensSTN','stimSTN_sensM2'};
 phaseN = [12 12 1 1 1 1 1 1 1];
 % phaseN = [1 1 1 1 1 1 1 1 1];
+SSI = 0;
 
-
-for SScomb = 1:8
-    subplot(4,2,SScomb)
+for SScomb = [9 10]
+    SSI = SSI + 1;
+    subplot(4,2,SSI)
     %% Loop through Connections
         rootan = [Rorg.rootn 'data\phaseLockedStim'];
         load([rootan '\BB_' Rorg.out.tag '_phaseLockedStim_CON_' num2str(CON) '_feat' num2str(SScomb) '.mat'],'feat_sim_save')
