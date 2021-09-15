@@ -5,6 +5,7 @@ close all
 SStype = {'stimM2_sensSTN','stimSTN_sensM2','stimSTN_sensGPe','stimM2_sensSTN','stimSTN_sensM2'};
 phaseN = [12 12 1 1 1 1 1 1 12 12];
 % phaseN = [1 1 1 1 1 1 1 1 1];
+SSI = 0;
 
 
 for SScomb = 1:10

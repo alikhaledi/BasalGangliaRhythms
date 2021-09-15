@@ -35,7 +35,7 @@ for SScomb = 10
         
     elseif SScomb == 3
         % Stimualating M2
-        senssite = 4; % STN
+        senssite = 1; % STN
         stimsite = 1; % M2
         stimFx = @lowFreqStim_v1;
         stim_sens = 'stimM2_sensSTN';
@@ -44,7 +44,7 @@ for SScomb = 10
         
     elseif SScomb == 4
         % Stimulating  STN
-        senssite = 1; % M2
+        senssite = 4; % M2
         stimsite = 4; % STN
         stimFx = @lowFreqStim_v1;
         stim_sens = 'stimSTN_sensM2';
@@ -53,7 +53,7 @@ for SScomb = 10
         
     elseif SScomb == 5
         % Stimualating M2
-        senssite = 4; % STN
+        senssite = 1; % STN
         stimsite = 1; % M2
         stimFx = @highFreqStim_pulse_v1;
         stim_sens = 'stimM2_sensSTN';
@@ -62,7 +62,7 @@ for SScomb = 10
         R.IntP.phaseStim.stimAmp = 20;
     elseif SScomb == 6
         % Stimulating  STN
-        senssite = 1; % M2
+        senssite = 4; % M2
         stimsite = 4; % STN
         stimFx = @highFreqStim_pulse_v1;
         stim_sens = 'stimSTN_sensM2';
@@ -72,7 +72,7 @@ for SScomb = 10
         
     elseif SScomb == 7
         % Stimualating M2
-        senssite = 4; % STN
+        senssite = 1; % STN
         stimsite = 1; % M2
         stimFx = @highFreqStim_v1;
         stim_sens = 'stimM2_sensSTN';
@@ -82,7 +82,7 @@ for SScomb = 10
         
     elseif SScomb == 8
         % Stimulating  STN
-        senssite = 1; % M2
+        senssite = 4; % M2
         stimsite = 4; % STN
         stimFx = @highFreqStim_v1;
         stim_sens = 'stimSTN_sensM2';
@@ -203,21 +203,21 @@ for SScomb = 10
             pU_save{state} = pU;
             
             ip = ip+1;
-            %             figure(100)
-            %             subplot(2,2,ip)
-            %             plot(R.frqz,squeeze(feat_sim_save{2,1}{1}(1,4,4,1,:)))
-            %             hold on
-            %             plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
-            %             set(gca, 'YScale', 'log');
-            %             figure(200)
-            %             subplot(4,1,ip)
-            %             plot( pU_save{state}{1}' )
-            %
-            %             figure(300)
-            %             subplot(4,1,ip)
-            %             plot([0 Rout.IntP.tvec_obs],xsim_ip{1,state}{1}{1}(4,:)' )
-            %             hold on
-            %             plot([0 Rout.IntP.tvec_obs],xsim_ip{2,state}{1}{1}(4,:)' )
+            figure(100)
+            subplot(2,2,ip)
+            plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
+            hold on
+            plot(R.frqz,squeeze(feat_sim_save{2,1}{1}(1,4,4,1,:)))
+            set(gca, 'YScale', 'log');
+            figure(200)
+            subplot(4,1,ip)
+            plot( pU_save{state}{1}' )
+            
+            figure(300)
+            subplot(4,1,ip)
+            plot([0 Rout.IntP.tvec_obs],xsim_ip{1,state}{1}{1}(4,:)' )
+            hold on
+            plot([0 Rout.IntP.tvec_obs],xsim_ip{2,state}{1}{1}(4,:)' )
         end
         
         rootan = [Rorg.rootn 'data\phaseLockedStim'];
