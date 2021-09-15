@@ -42,7 +42,7 @@ R.rootn = [gitpath2 '\BasalGangliaRhythms\'];
 addpath(genpath(R.rootn))
 
 % Add External Toolboxes
-addpath(genpath([gitpath2 '\ABC_Inference_Neural_Paper\sim_machinery']))
+addpath(genpath([gitpath2 '\ABC_Inference_Neural_Paper\sim_machinery'])); % load manually for now
 pathCell = regexp(path, pathsep, 'split'); onPath = any(strcmpi(spmpath, pathCell));
 if ~onPath; addpath(spmpath); spm eeg; close all; end
 addpath(genpath([gitpath '\BurstToolbox']))

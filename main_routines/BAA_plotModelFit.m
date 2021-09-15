@@ -11,7 +11,6 @@ Rorg.chloc_name = Rorg.chsim_name; % Ensure sim names match to output names
 mkdir([Rorg.rootn 'data\modelfit'])
 save([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 
-
 close all;
 X = xsimMod{1}{1}{1};
 for i = 1:6

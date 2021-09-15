@@ -155,7 +155,6 @@ for condsel = 1:numel(R.condnames)
         break
     end
 
-
     Ds = zeros(size(D));Dt = zeros(size(D));
     % Now find indices of inputs
     % Currently no seperation between inh and excitatory

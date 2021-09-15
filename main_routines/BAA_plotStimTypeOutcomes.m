@@ -3,12 +3,12 @@ state = 1; % baseline state only
      CON = 1; % dont need to discriminate
 close all
 SStype = {'stimM2_sensSTN','stimSTN_sensM2','stimSTN_sensGPe','stimM2_sensSTN','stimSTN_sensM2'};
-phaseN = [12 12 1 1 1 1 1 1 1];
+phaseN = [12 12 1 1 1 1 1 1 12 12];
 % phaseN = [1 1 1 1 1 1 1 1 1];
 
 
-for SScomb = 1:8
-    subplot(4,2,SScomb)
+for SScomb = 1:10
+    subplot(5,2,SScomb)
     %% Loop through Connections
         rootan = [Rorg.rootn 'data\phaseLockedStim'];
         load([rootan '\BB_' Rorg.out.tag '_phaseLockedStim_CON_' num2str(CON) '_feat' num2str(SScomb) '.mat'],'feat_sim_save')
@@ -49,7 +49,9 @@ for SScomb = 1:8
         elseif SScomb == 5
             ylabel('Pulse 130 Hz')
         elseif SScomb == 7
-            ylabel('Sine 130 Hz')            
+            ylabel('Sine 130 Hz')
+        elseif SScomb == 9
+            ylabel('Playback 14-21 Hz')   
         end
 
 % %                set(gca, 'YScale', 'log');
