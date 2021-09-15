@@ -37,9 +37,10 @@ for CON = 1:2
             frqz = butf;
             minper = 3; % Min 3 cycles
             %         peakHz = dataProperties(4,1,CON); % This loads in the peak STN frequency
-            
-            [burstSelInds,XF,XEnv,XPhi,epsAmp,segL{band,state,CON},segA{band,state,CON}] = simpleBurstDefine(X,fsamp,frqz,minper);
-            
+            [burstSelInds_tmp] = simpleBurstDefine(X,fsamp,frqz,minper,75);
+            NSamp = [numel(burstSelInds_tmp) fix(mean(cellfun('length',burstSelInds_tmp)))];
+            [burstSelInds,XF,XEnv,XPhi,epsAmp,segL{band,state,CON},segA{band,state,CON}] = simpleBurstDefine(X,fsamp,frqz,minper,0,NSamp);
+%             [burstSelInds,XF,XEnv,XPhi,epsAmp,segL{band,state,CON},segA{band,state,CON}] = simpleBurstDefine(X,fsamp,frqz,minper,75);
             if state == 4
                 burstSelInds = permuteInds(burstSelInds,X);
             end
@@ -79,7 +80,7 @@ end
 figure(101)
 set(gcf,'Position',[401         321        1368         657])
 figure(102)
-set(gcf,'Position',[401         321        1368         657])
+set(gcf,'Position',[ 401   321   880   657])
 
 
 save([rootan '\BB_' R.out.tag '_stateOutOfBurst_ConnectivityMatrix.mat'],'specMat','connectMat','statBurstOverl','statBurstPLVl','segA','segL')
