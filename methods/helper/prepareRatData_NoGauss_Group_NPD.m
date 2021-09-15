@@ -10,7 +10,7 @@ NPDmat = fyA;
 load([R.filepathn '\nsPow_paper_RatNPD_150618.mat']);
 nsPowmat = fyA;
 load([R.filepathn '\Frq_paper_RatNPD_150618.mat']);
-meannpd_data = [];
+meannpd_data = nan(1,6,6,4,311);
 % condsel = [1 2];
 R.condnames = {'OFF'};
 R.Bcond = 1;

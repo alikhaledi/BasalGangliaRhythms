@@ -32,7 +32,14 @@ figure
 plotABCSpectraOnly(R.data.feat_xscale,R.data.feat_emp,permMod{1}.feat_rep{1})
 figure
 npdplotter_110717({R.data.feat_emp},{permMod{1}.feat_rep{1}},R.data.feat_xscale,R,[],[])
-
+for i = 1:6
+    for j = 1:6
+        if i~=j
+            subplot(6,6,sub2ind([6 6],j,i))
+            ylim([0 0.6]);
+        end
+    end
+end
 
 % featn = {'cross','auto','cross_only'};
 % bandlim = {[],[14 21],[21 30],[14 30]};
