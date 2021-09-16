@@ -11,7 +11,7 @@ load([Rorg.rootn 'data\modelfit\SimModelData_M10.mat'],'R','m','permMod')
 R.rootn = Rorg.rootn;
 R.filepathn = Rorg.filepathn;
 warning('Loading Preloaded model, cant change simtime or model choice!!!')
-for SScomb = 10
+for SScomb = 1
     %% Define stimulation conditions
     if SScomb == 1
         % Stimualating M2
@@ -176,7 +176,7 @@ for SScomb = 10
             m = m; % initialise for parfor
             xsim_ip_stim = cell(1,12); feat_sim_stim = cell(1,12); pU = cell(1,12);
             %             parfor p = 1:numel(phaseShift)
-            for p = 1:numel(phaseShift)
+            parfor p = 1:numel(phaseShift)
                 Rpar = R;
                 % Modulate the phase
                 Rpar.IntP.phaseStim.phaseshift = phaseShift(p);
@@ -202,22 +202,22 @@ for SScomb = 10
             xsim_ip{1,state} = xsim_ip_base; xsim_ip{2,state} = xsim_ip_stim;
             pU_save{state} = pU;
             
-            ip = ip+1;
-            figure(100)
-            subplot(2,2,ip)
-            plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
-            hold on
-            plot(R.frqz,squeeze(feat_sim_save{2,1}{1}(1,4,4,1,:)))
-            set(gca, 'YScale', 'log');
-            figure(200)
-            subplot(4,1,ip)
-            plot( pU_save{state}{1}' )
-            
-            figure(300)
-            subplot(4,1,ip)
-            plot([0 Rout.IntP.tvec_obs],xsim_ip{1,state}{1}{1}(4,:)' )
-            hold on
-            plot([0 Rout.IntP.tvec_obs],xsim_ip{2,state}{1}{1}(4,:)' )
+%             ip = ip+1;
+%             figure(100)
+%             subplot(2,2,ip)
+%             plot(R.frqz,squeeze(feat_sim_save{1,1}{1}(1,4,4,1,:)))
+%             hold on
+%             plot(R.frqz,squeeze(feat_sim_save{2,1}{1}(1,4,4,1,:)))
+%             set(gca, 'YScale', 'log');
+%             figure(200)
+%             subplot(4,1,ip)
+%             plot( pU_save{state}{1}' )
+%             
+%             figure(300)
+%             subplot(4,1,ip)
+%             plot([0 Rout.IntP.tvec_obs],xsim_ip{1,state}{1}{1}(4,:)' )
+%             hold on
+%             plot([0 Rout.IntP.tvec_obs],xsim_ip{2,state}{1}{1}(4,:)' )
         end
         
         rootan = [Rorg.rootn 'data\phaseLockedStim'];

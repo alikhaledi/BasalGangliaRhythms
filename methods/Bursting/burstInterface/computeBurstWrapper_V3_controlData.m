@@ -1,94 +1,123 @@
 function [R,BB] = computeBurstWrapper_V3_controlData(R)
 % rootan = [R.rootn 'data\ConnectionSweep'];
-rootan = 'D:\Data\ratdata_050816';
+rootan = 'C:\DATA\Rat_020317_processed';
 close all;
-% Overlap subplots
-figure(101)
-ha =   tight_subplot(3,3,0.05);
-delete(ha([2 4 6 8]))
-splist = [1 2]; %subplot list
-
-scmap = brewermap(4,'Set1');
-statecmap{1} = [0 0 0; scmap(1:2,:)];
-statecmap{2} = [0 0 0; scmap(3:4,:)];
 
 R.statename = {'Fitted','HD-Down','HD-Up'; 'Fitted','PS-Down','PS-Up'};
-anim = {'L4','L6','L13','L18','L19','L20','L22','L23','L24'};
-Xpair = [1 4];
-CON =3; state = 1;
-BB = [];
-for aniN = 1:3
-    load([rootan '\' anim{aniN} '.mat'],'dataSelect','dataProperties')
-    
-    state = 1;
-    %% Find Burst Epochs
-    % Get Data
-    if state<4
-        X = dataSelect{CON}{state}{1};
-    else
-        X  = dataSelect{CON}{1}{1}; % state 4 is used for permutation comparisons
-    end
-    for band = 1:2
-        if band == 1
-            fhz = 18; butf = [14 21];
-        elseif band == 2
-            fhz = 24; butf = [21 30];
-        end
-        
-        % Set parameters
-        fsamp = 1/R.IntP.dt;
-        frqz = butf;
-        minper = 3; % Min 3 cycles
-        %         peakHz = dataProperties(4,1,CON); % This loads in the peak STN frequency
-        
-        [burstSelInds,XF,XEnv,XPhi,epsAmp,segL{band,state,CON},segA{band,state,CON}] = simpleBurstDefine(X,fsamp,frqz,minper);
-        
-        if state == 4
-            burstSelInds = permuteInds(burstSelInds,X);
-        end
-        
-        
-        % compute burst PLV
-        [statBurstPLVl{band,state,CON},~,] = burstPLV(XPhi,burstSelInds,band);
-        
-        % compute burst overlaps
-        [statBurstOverl{band,state,CON},sampBurstOverL{band,state,CON}] = burstOverlap(XF,fsamp,frqz,minper,band);
-        
-        
-        [connectMat{band,state,CON},diffConnectCI{band,state,CON}] = computePLVConMat(XPhi,band);
-        
-        % Compute Connectivity/Spectral Matrix
-        [Pw pHz] = pwelch(X',fsamp,[],fsamp,fsamp);
-        Pw = (Pw-mean(Pw(:)))./std(Pw(:));
-        specMat{band,state,CON} = Pw(pHz>4 & pHz<=48,:);
-        
-        % Setup window in which to look
-        winsize(1) = 0.075*fsamp;
-        winsize(2) = 0.075*fsamp; %0.15*fsamp;
-        winsize(3) = 0.075*fsamp;
-        winsize(4) = 0.075*fsamp;
-        winloc(1) =  -0.35*fsamp;
-        winloc(2) =  0*fsamp;
-        winloc(3) =  +0.5*fsamp;
-        
-        burstSelInds = cropBurstSelection(burstSelInds,winsize,size(X,2));% Remove bursts at ends
-        
-        [twin{band,state},m2Env{band,state},stnEnv{band,state},...
-            dPhi{band,state},sw_twin{band,state},sw_PLV{band,state},...
-            aftdPhi{band,state},befdPhi{band,state},middPhii{band,state},~,derv{band,state},intAmp{band,state}] = getBurstTraces(burstSelInds,winsize,winloc,fsamp,XEnv,XPhi,Xpair);
-    end
-end
+anim{1} = {'C1','C2','C3','C4','C5','C6','C8'};
+sfx{1} = '_control_rat_020317';
+anim{2} = {'L4','L6','L13','L18','L19','L20','L22','L23'};
+sfx{2} = '_lesion_rat_020317';
 
-function burstSelIndsPerm = permuteInds(burstSelInds,X)
-L = 1:size(X,2); flag = 1;
-for i = 1:numel(burstSelInds)
-    flag = 1;
-    while flag
-        p = randi(numel(L));
-        pinds = p:p+numel(burstSelInds{i});
-        if (pinds(end)+2000)<size(X,2) &&  (pinds(1)-2000)>1
-            flag = 0;
+strlab = {'M1','STR','GPe','STN'};
+for state =1:2
+    BB = [];
+    for aniN = 1:size(anim{state},2)
+        load([rootan '\' anim{state}{aniN} sfx{state} '.mat'],'FTdata')
+        fsamp = FTdata.fsample;
+        X = FTdata.ContData.trial{1};
+        X = resample(X',1/R.IntP.dt,fsamp)'; % resample to same as simulation
+        fsamp = 1/R.IntP.dt; % new sample rate
+        X = zscore(X,[],2);
+        % find channel with max beta power
+        Y = zeros(6,size(X,2));
+        for regName = 1:4
+            chinds = find(strncmp(FTdata.ContData.label,strlab{regName},3));
+            if numel(chinds)>0
+                bbp = []; bbp = [];
+                for i = 1:numel(chinds)
+                    bbp(i) = bandpower(X(chinds(i),:),fsamp,[14 30]);
+                end
+                [~,bind] = max(bbp);
+                Y(regName,:) = X(chinds(bind),:);
+            else
+                Y(regName,:) = nan(1,size(X,2));
+            end
+        end
+        X = Y;
+        clear Y
+        % Start feature computation
+        for band = 1:2
+            if band == 1
+                fhz = 18; butf = [14 21];
+            elseif band == 2
+                fhz = 24; butf = [21 30];
+            end
+            
+            % Set parameters
+            %             fsamp = 1/R.IntP.dt;
+            frqz = butf;
+            minper = 3; % Min 3 cycles
+            %         peakHz = dataProperties(4,1,CON); % This loads in the peak STN frequency
+            
+            [burstSelInds,XF,XEnv,XPhi,epsAmp] = simpleBurstDefine(X,fsamp,frqz,minper);
+            
+            %         % compute burst PLV
+            %         [statBurstPLVl{band,state,CON},~,] = burstPLV(XPhi,burstSelInds,band);
+            
+            % compute burst overlaps
+            [statBurstOverAnim{band,aniN}] = burstOverlap(XF,fsamp,frqz,minper,band);
+            
+            
+            [connectMatAnim{band,aniN}] = computePLVConMat(XPhi,band);
+            
+            % Compute Connectivity/Spectral Matrix
+            [Pw pHz] = pwelch(X',fsamp,[],fsamp,fsamp); % get the target freq vector
+            
+            R = prepareRatData_NoGauss_Animal_NPD(R,aniN,state);
+            % You might need to make a change to the main script - get spectra all from
+            % the same transform?
+            for i = 1:6
+                tmp = squeeze(R.data.feat_emp(1,i,i,1,:));
+                Pww(:,i) = interp1(R.data.feat_xscale,tmp,pHz);
+            end
+            
+            % %% IF Computing locally
+            % %             [Pw pHz] = pwelch(X',fsamp,[],fsamp,fsamp);
+            % %             for i = 1:size(Pw,2)
+            % % %                 plot(pHz,Pw(:,i)); hold on
+            % %                 Pww(:,i) = logLogDetrend(pHz,Pw(:,i));
+            % % %                 plot(pHz,Pww(:,i)); hold on
+            % %             end
+            % %             Pww = (Pww-nanmean(Pww(:)))./nanstd(Pww(:));
+            % %             Pww = Pww - min(Pww);
+            
+            specMatAnim{band,aniN} = Pww(pHz>4 & pHz<=48,:);
         end
     end
-    burstSelIndsPerm{i} = pinds;
+    %% Now average across animals
+    for band = 1:2
+        tmp1 = []; tmp2 = []; tmp3 = [];
+        for aniN = 1:size(anim{state},2)
+            tmp1(:,:,:,aniN) =  connectMatAnim{band,aniN};
+            tmp2(:,:,aniN) =  specMatAnim{band,aniN};
+            tmp3(:,:,:,aniN) =  statBurstOverAnim{band,aniN};
+        end
+        connectMatEmp{band,state,1} = mean(tmp1,4);
+        specMatEmp{band,state,1} = mean(tmp2,3);
+        statBurstOverlEmp{band,state,1} = mean(tmp3,3);
+        
+        % remove GPi/Thal
+        specMatEmp{band,state,1}(:,5:6) = nan;
+        connectMatEmp{band,state,1}(:,5:6) = nan; connectMatEmp{band,state,1}(5:6,:) = nan;
+        
+    end
 end
+rootan = [R.rootn 'data\ConnectionSweep'];
+save([rootan '\BB_' R.out.tag '_EmpiricalStates_ConnectivityMatrix.mat'],'specMatEmp','connectMatEmp','statBurstOverlEmp')
+
+function Pxy = logLogDetrend(F_scale,Pxy)
+pwlinInds = (F_scale>48 & F_scale<52 );
+Pxy(pwlinInds) = nan;
+baseInds= (F_scale<6);
+Pxy(baseInds) = nan;
+tailinds = ((F_scale>6 & F_scale<=48 ) | (F_scale>52 & F_scale<98));
+Pxy = log10(Pxy); F_scale = log10(F_scale);
+[dum1 dum2 b Rsq] = linregress(F_scale(tailinds),Pxy(tailinds));
+yCalc = [ones(length(F_scale),1) F_scale]*b;
+Pxy = Pxy-yCalc;
+Pxy = 10.^Pxy; F_scale = 10.^(F_scale);
+
+truncinds = ((F_scale>98));
+Pxy(truncinds) = nan;
+

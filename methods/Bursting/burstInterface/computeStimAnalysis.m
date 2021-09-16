@@ -1,6 +1,6 @@
 function [R,BB] = computeStimAnalysis(R,fresh)
 
-rootan = [R.rootn 'data\' R.out.oldtag '\phaseLockedStim'];
+rootan = [R.rootn 'data\phaseLockedStim'];
 close all;
 conname = {'HD','','PS'};
 statename = {'Fitted','A','B'};
