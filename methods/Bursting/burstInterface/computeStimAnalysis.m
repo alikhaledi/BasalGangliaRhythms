@@ -133,5 +133,4 @@ philist = [100 6 12];
 cmap = [0 0 0; cmap(philist(2)-1,:); cmap(philist(3)-1,:)];
 set(gcf,'Position',[401         321        1368         657])
 
-figure; bplotStimBurstLength(segA,segL,'sda',cmap,2)
 % end

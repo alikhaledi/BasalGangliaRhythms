@@ -11,6 +11,8 @@ statecmap{1} = scmap(1:2,:);
 statecmap{2} = scmap(3:4,:);
 hdext = '_REV'; % version tag
 
+load([rootan '\BB_' R.out.tag '_ConnectionSweep_noise.mat'],'xsim_noise','feat_sim_noise')
+
 for CON = 1:2
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_feat' hdext '.mat'])
     load([rootan '\BB_' R.out.tag '_ConnectionSweep_CON_' num2str(CON) '_ck_1' hdext '.mat'])
@@ -23,7 +25,7 @@ for CON = 1:2
     
     a = plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[1,1,1],statecmap{CON})
     title('M2 power')
-        ylim([1e-15 5e-14])
+        ylim([ 1e-12 5e-10])
         set(gca, 'YScale', 'log'); %, 'XScale', 'log')
     if CON == 1
         subplot(2,3,2)
@@ -32,7 +34,7 @@ for CON = 1:2
     end
     plotSweepSpectra(R.frqz,feat,feat{1},cmap1,{R.condname{[2 1 3]}}, [1 15 30],2:4:31,[4,4,1],statecmap{CON})
     title('STN power')
-        ylim([1e-16 1e-12])
+        ylim([5e-12 1e-8])
         set(gca, 'YScale', 'log'); %, 'XScale', 'log')
     
     if CON == 1

@@ -37,7 +37,8 @@ if (tstep+fix(R.IntP.phaseStim.stimlength/dt))<size(uexs,1) || tstep==0
     A = (R.IntP.phaseStim.stimAmp*uvar); % setup the amplitude of the stim
     % Check the Envelope for gating
     gate = all(BEnv(end-fix(R.IntP.phaseStim.trackdelay/dt)-fix(R.IntP.phaseStim.minBS/dt):end-fix(R.IntP.phaseStim.trackdelay/dt)) > R.IntP.phaseStim.eps);
-    instfreq = 18; %median(1./(diff(unwrap(BPhi(end-fix(R.IntP.phaseStim.trackdelay/dt)-fix(R.IntP.phaseStim.minBS/dt)-1:end-fix(R.IntP.phaseStim.trackdelay/dt))))));
+    instfreq = 18; % Fixed
+%     instfreq = median(1./(diff(unwrap(BPhi(end-fix(R.IntP.phaseStim.trackdelay/dt)-fix(R.IntP.phaseStim.minBS/dt)-1:end-fix(R.IntP.phaseStim.trackdelay/dt))))));
     brake = ~all(uexs(tstep-(R.IntP.phaseStim.stimGap/dt):tstep,R.IntP.phaseStim.sensStm(2))==0); % If within
     % This sets up the stim period and ensures breaks. Stimulation
     % is delivered:

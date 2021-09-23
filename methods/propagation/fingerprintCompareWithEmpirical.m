@@ -15,7 +15,14 @@ statBurstOverl(1:2,4:5,1) = statBurstOverlEmp;
 clear connectMatEmp specMatEmp statBurstOverlEmp
 
 % Setup State
-statelistSpont = [1 1; 2 1; 3 1; 2 2; 3 2; 4 1; 5 1]; % state CON
+statelistSpont = [          % state CON
+    1 1;    % Fitted
+    2 1;    % HD Down
+    3 1;    % HD UP
+    2 2;    % PS DOWN
+    3 2;    % PS UP
+    4 1;    % Control data    
+    5 1];   % Lesion Data
 % connectMat{band,NetState,CON}
 cmat = []; smat = [];
 for state = 1:size(statelistSpont,1)
@@ -59,6 +66,8 @@ for stateStim = 1:size(cmatStim,3)
         [h pnm(stateStim,stateSpont)] = corr(A{2}(:),B{2}(:),'type','Spearman');
         Lpart{1} = A{2}(1:6,1:6); Cpart{1} = A{2}(1:6,7:12); % seperate out linear vs circular parts of A
         Lpart{2} = B{2}(1:6,1:6); Cpart{2} = B{2}(1:6,7:12); % seperate out linear vs circular parts of B
+        [Cpart{1},Cpart{2}] = remnan(Cpart{1}(:),Cpart{2}(:));
+%         nmlist(stateStim,stateSpont) =  rsquare(A{2}(:),B{2}(:));
         nmlist(stateStim,stateSpont) = mean([rsquare(Lpart{1}(:),Lpart{2}(:)) circ_corrcc(Cpart{1}(:),Cpart{2}(:)).^2]); %rsquare(A{2}(:),B{2}(:));%*(pnm(stateStim,stateSpont)<0.05) ;% norm(A-B,'fro'); %%
         [h p] = corr(A{1}(:),B{1}(:),'type','Spearman');
         slist(stateStim,stateSpont) =  rsquare(A{1}(:),B{1}(:)); %*(p<0.05);%
@@ -73,7 +82,7 @@ end
 
 
 figure
-plotFingerPrintMatch(nmlist,slist,clist,scmap,2:5,{'HD-Down','HD-Up','PS-Down','PS-Up'},0)
+plotFingerPrintMatch(nmlist,slist,clist,scmap,1:5,{'Fitted','HD-Down','HD-Up','PS-Down','PS-Up'},0)
 subplot(1,3,1); ylim([-0.5 1]); subplot(1,3,2); ylim([0 1]); subplot(1,3,3); ylim([0 1]);
 
 figure
@@ -95,8 +104,9 @@ for L = 1:3
     
     if percflag ==1
         %     lm = 100.*(lm-min(lm))./min(lm);
-        lm = 100*(lm - mean(lm));
-        ytit = {'Change in '; 'explained variance'};
+%         lm = 100*(lm - mean(lm));
+%         ytit = {'Change in '; 'explained variance'};
+        ytit = {'Similarity to '; 'Spontaneous (R2)'};
     else
         ytit = {'Similarity to '; 'Spontaneous (R2)'};
     end

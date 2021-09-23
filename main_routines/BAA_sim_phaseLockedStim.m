@@ -116,7 +116,7 @@ for SScomb = 1
     
     %     % Simulation Coniditions
     R.obs.csd.df = 0.5;
-    R = setSimTime(R,32);
+    R = setSimTime(R,128);
     
     % Trans Options
     %     R.obs.SimOrd = 10;
@@ -131,7 +131,7 @@ for SScomb = 1
     rng(5453)
     m.uset.p.scale = m.uset.p.scale;
     uc = innovate_timeseries(R,m);
-    uc{1} = uc{1}.*sqrt(R.IntP.dt);
+%     uc{1} = uc{1}.*sqrt(R.IntP.dt);
     XBase = permMod{1}.par_rep{1};
     
     % Phase To be Tested
@@ -145,10 +145,10 @@ for SScomb = 1
     end
     
     %% Loop through Connections
-    for CON = 1; %:2
+    for CON = 1:2
         feat_sim_save = {};
         xsim_ip = {};
-        for state = 1; %:size(ck_1,2)
+        for state = 1:size(ck_1,2)
             %% Setup Base Model
             Pbase = XBase;
             if CON == 1 % Hyperdirect

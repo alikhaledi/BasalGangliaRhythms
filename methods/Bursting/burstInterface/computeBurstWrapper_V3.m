@@ -23,7 +23,7 @@ for CON = 1:2
         if state<4
             X = dataSelect{CON}{state}{1};
         else
-            X  = dataSelect{CON}{1}{1};
+            X  = dataSelect{CON}{1}{1}; % state 4 is for permutations
         end
         for band = 1:2
             if band == 1
@@ -76,10 +76,6 @@ for CON = 1:2
         end
     end
     
-    % figure(300+CON)
-    % bplotBurstLength(segA,segL,conname{CON},statecmap{CON},CON)
-    % set(gcf,'Position',[680   159   901   819])
-
     figure(431);
     subplot(2,1,splist(CON))
     cmap = statecmap{CON};
@@ -99,9 +95,9 @@ for CON = 1:2
     axis square
     set(gcf,'Position',[658    52   314   756])
     
-        figure(CON)
-        plotBurstTraces(twin,m2Env,stnEnv,sw_twin,sw_PLV,aftdPhi,middPhii,befdPhi,dPhi,statecmap{CON})
-        set(gcf,'Position',[24 42 1813 756])
+    figure(CON)
+    plotBurstTraces(twin,m2Env,stnEnv,sw_twin,sw_PLV,aftdPhi,middPhii,befdPhi,dPhi,statecmap{CON})
+    set(gcf,'Position',[24 42 1813 756])
     
     figure(100)
     if CON == 1
@@ -114,16 +110,13 @@ for CON = 1:2
     plotOverlapMats(R,statBurstOverl,CON,cmap,ha)
     
     figure(102)
-    %     plotConnectivityMats(R,connectMat,diffConnectCI,CON,cmap)
     plotConnectivityMats(R,statBurstPLVl,diffConnectCI,CON,cmap)
-    % plotPLVMats(R,statBurstPLVl,CON,cmap,hb)
     
 end
 figure(101)
 set(gcf,'Position',[401         321        1368         657])
 figure(102)
 set(gcf,'Position',[401         321        1368         657])
-
 figure(300)
 plotOverlapBars(sampBurstOverL)
 save([rootan '\BB_' R.out.tag '_stateConnectivityMatrix.mat'],'specMat','connectMat','statBurstOverl','statBurstPLVl','segA','segL')

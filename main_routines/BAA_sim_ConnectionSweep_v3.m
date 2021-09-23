@@ -7,8 +7,8 @@ pause(1)
 
 % Sliding scale
 % Used for: (1) Plot Spectra over sweeps
-ck_1(1,:) = [1 logspace(-1,log10(3.11),30)]; % This is HD
-ck_1(2,:) = [1 logspace(-1,log10(1.33),30)]; % This is PS
+ck_1(1,:) = [1 logspace(log(0.25),log10(3.11),30)]; % This is HD
+ck_1(2,:) = [1 logspace(log(0.25),log10(1.33),30)]; % This is PS
 
 hdext = '_REV';
 
@@ -21,7 +21,7 @@ R.obs.gainmeth = {};
 % Give all timeseries the same input - makes comparable
 rng(2315324)
 uc = innovate_timeseries(R,m);
-uc{1} = uc{1}.*sqrt(R.IntP.dt);
+% uc{1} = uc{1}.*sqrt(R.IntP.dt);
 XBase = permMod{1}.par_rep{1};
 R.IntP.getNoise = 1; % This turns off all the connections to get resting endogenous noise for each node
 R.obs.csd.df = 0.25; % increase spectral resolution
