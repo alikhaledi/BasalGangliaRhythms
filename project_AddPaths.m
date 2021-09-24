@@ -8,6 +8,7 @@ switch getenv('computername')
     case 'DESKTOP-0HO6J14'
         gitpath =  'D:\GITHUB';
         madpath = 'C:\Users\timot\OneDrive\Documents\Work\MATLAB ADDONS';
+                 spmpath = 'D:\GITHUB\spm12';
 %         gitpath2 = 'D:\GITHUB_STORE';
     % case 'PC-NAME'
     % gitpath = 'path to general github repo
@@ -33,7 +34,7 @@ if ~onPath; addpath(spmpath); spm eeg; close all; end
 addpath(genpath([gitpath2 '\ABC_Inference_Neural_Paper\sim_machinery'])); % load manually for now
 % addpath(genpath([gitpath '\BurstToolbox']))
 addpath([madpath '\Circular_Statistics_Toolbox'])
-% addpath([madpath '\Neurospec\neurospec21'])
+addpath([madpath '\Neurospec\neurospec21'])
 addpath([madpath '\DrosteEffect-BrewerMap-221b913'])
 addpath([madpath '\SplitVec'])
 addpath([madpath '\permutest'])
