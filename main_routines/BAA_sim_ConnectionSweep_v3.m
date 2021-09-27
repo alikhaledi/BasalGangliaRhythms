@@ -26,7 +26,7 @@ XBase = permMod{1}.par_rep{1};
 R.IntP.getNoise = 1; % This turns off all the connections to get resting endogenous noise for each node
 R.obs.csd.df = 0.25; % increase spectral resolution
 R.obs.SimOrd = 11;
-[dum1,dum2,feat_sim_noise,dum3,xsim_noise] = computeSimData(R,m,uc,XBase,0);
+[dum1,dum2,feat_sim_noise,dum3,xsim_noise] = computeSimData120319(R,m,uc,XBase,0);
 R.IntP.getNoise = 0;
 
 
@@ -43,7 +43,7 @@ for CON = 1:2
         elseif CON == 2 % Pallidal-subthalamo
             Pbase.A{2}(4,3) = log(exp(Pbase.A{2}(4,3))*ck_1(CON,i)); %
         end
-        [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData(R,m,uc,Pbase,0,1);
+        [r2mean,pnew,feat_sim,dum1,xsim_gl] = computeSimData120319(R,m,uc,Pbase,0,1);
         feat{i} = feat_sim;
         xsim{i} = xsim_gl;
         
