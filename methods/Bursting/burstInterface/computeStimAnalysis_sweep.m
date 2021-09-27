@@ -1,6 +1,6 @@
 function [R,BB] = computeStimAnalysis_sweep(R,fresh)
 
-rootan = [R.rootn 'data\\phaseLockedStim'];
+rootan = [R.rootn 'data\phaseLockedStim'];
 close all;
 conname = {'HD','PS'};
 statename = {'Fitted','A','B'};
@@ -14,7 +14,7 @@ if fresh
     load([rootan '\BB_' R.out.tag '_phaseLockedStim_CON_' num2str(CON) '_xsim' num2str(SScomb) '.mat'],'xsim_ip');
     load([rootan '\BB_' R.out.tag '_phaseLockedStim_CON_' num2str(CON) '_Rout' num2str(SScomb) '.mat'],'Rout');
     load([rootan '\BB_' R.out.tag '_phaseLockedStim_CON_' num2str(CON) '_pU_save' num2str(SScomb) '.mat'],'pU_save');
-    for state = 1; %:31
+    for state = 1:31
         fsamp = 1/Rout.IntP.dt;
         for stm = 1:2
             % Set the phase range

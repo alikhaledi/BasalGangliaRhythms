@@ -58,7 +58,7 @@ computeStimAnalysis_sweep(R,1); % the sweeps now do everything
 
 %% Compare the connectivity matrices
 fingerprintCompare_Sweep(R)% the sweeps now do everything
-
+fingerprintCompare_Sweep_MSEALT(R); % with alternative cost functions
 %% For Response Letter
 computeOutOfBurstWrapper_V3(R); % compute spectral fingerprints without burst definition 
 fingerprintCompareSimulatedEmpirical(R); %compare states

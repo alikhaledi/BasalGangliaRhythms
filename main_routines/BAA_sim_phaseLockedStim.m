@@ -145,7 +145,7 @@ for SScomb = 1
     end
     
     %% Loop through Connections
-    for CON = 1:2
+    for CON = 1
         feat_sim_save = {};
         xsim_ip = {};
         for state = 1:size(ck_1,2)
